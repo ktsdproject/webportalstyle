@@ -72,9 +72,9 @@ code ไม่ได้ยากครับ css ง่ายๆ ใครๆก
     overflow: hidden;
 }
 
-/* Responsive: ซ่อนการ์ดใบที่ 6-10 เมื่อดูผ่านมือถือ */
+/* Responsive: ซ่อนการ์ดใบที่ 7-12 เมื่อดูผ่านมือถือ */
 @media (max-width: 768px) {
-    .fb-card:nth-child(n+6) {
+    .fb-card:nth-child(n+7) {
         display: none !important;
     }
 }
