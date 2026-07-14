@@ -33,9 +33,7 @@ function replaceCalendarWithModernCards() {
     }
 }
 
-// ---------------------------------------------------------
 // ฟังก์ชันวาดการ์ดลงใน HTML
-// ---------------------------------------------------------
 function renderCards(posts) {
     var container = document.getElementById('fb-card-container');
     if (!container) return;
