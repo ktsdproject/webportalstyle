@@ -53,11 +53,10 @@ function renderCards(posts) {
     
     container.innerHTML = html;
 }
-// ข้อมูลจำลอง (Mock Data) 10 โพสต์ เพื่อดูความสวยงามของการ์ด
+// ข้อมูลจำลอง (Mock Data) 12 โพสต์
 var mockFacebookPosts = [];
-for(var i = 1; i <= 10; i++) {
+for(var i = 1; i <= 12; i++) {
     mockFacebookPosts.push({
-        // ใช้รูป placeholder สวยๆ สุ่มตามลำดับ
         image: 'https://picsum.photos/400/300?random=' + i, 
         date: '14 ก.ค. 2569',
         text: 'ตัวอย่างข้อความโพสต์อัปเดตภารกิจของสำนักงานเขตคลองเตย ลำดับที่ ' + i + ' ข้อความยาวๆ จะถูกตัดให้พอดีที่ 3 บรรทัดอัตโนมัติ เพื่อให้การ์ดเท่ากันทุกใบ',
