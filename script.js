@@ -4,7 +4,7 @@ function replaceCalendarWithModernCards() {
 
     var titleText = calWrapper.querySelector('.title');
     if (titleText) {
-        titleText.innerHTML = '<i class="fab fa-facebook-square" style="color:#1877F2; font-size: 1.2em; vertical-align: middle;"></i> อัปเดตข่าวสารจากเพจเขตคลองเตย';
+        titleText.innerHTML = '<i class="fab fa-facebook-square" style="color:#1877F2; font-size: 1.2em; vertical-align: middle;"></i> ข่าวสารจากเพจเขตคลองเตย';
         titleText.href = 'https://www.facebook.com/khlongtoei599';
         titleText.target = '_blank';
     }
