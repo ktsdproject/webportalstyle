@@ -236,20 +236,22 @@ window.closeMapModal = function(e) {
 };
 
 // =========================================================
-// ตัวสั่งรันฟังก์ชันทั้งหมด (รันแบบหน่วงเวลาเพื่อหลบความอืดของเว็บหลัก)
+// ตัวสั่งรันฟังก์ชันทั้งหมด (รอ HTML โหลดเสร็จ)
 // =========================================================
-upgradeFloatingSidebar();
-setTimeout(upgradeFloatingSidebar, 1000);
-setTimeout(upgradeFloatingSidebar, 3000);
+function initAllCustomScripts() {
+    upgradeFloatingSidebar();
+    upgradeFooterSocial();
+    replaceCalendarWithModernCards();
+    setupMapNavigation();
+}
 
-upgradeFooterSocial();
-setTimeout(upgradeFooterSocial, 1000);
-setTimeout(upgradeFooterSocial, 3000);
+document.addEventListener("DOMContentLoaded", function() {
+    initAllCustomScripts();
+    
+    setTimeout(initAllCustomScripts, 1000);
+    setTimeout(initAllCustomScripts, 3000);
+});
 
-replaceCalendarWithModernCards();
-setTimeout(replaceCalendarWithModernCards, 1000);
-setTimeout(replaceCalendarWithModernCards, 3000);
-
-setupMapNavigation();
-setTimeout(setupMapNavigation, 1000);
-setTimeout(setupMapNavigation, 3000);
+window.addEventListener("load", function() {
+    initAllCustomScripts();
+});
