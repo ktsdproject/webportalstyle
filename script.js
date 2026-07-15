@@ -125,46 +125,32 @@ function renderCards(posts) {
     container.innerHTML = html;
 }
 // =========================================================
-// อัปเกรดปุ่ม Social Media ใน Footer 
+// ปรับแต่งเมนูด้านซ้าย (เหลือแค่ออนไลน์ + ปุ่ม Messenger)
 // =========================================================
-function upgradeSocialFooter() {
-    // วิ่งหากล่อง social-wrapper ในหน้าเว็บ
-    var socialWrapper = document.querySelector('.social-wrapper ul');
-    if (!socialWrapper) return;
+function upgradeFloatingSidebar() {
+    // เจาะจงไปที่ social-wrapper ที่อยู่ด้านซ้ายเท่านั้น
+    var sidebarSocial = document.querySelector('.fixed-left-wrapper .social-wrapper ul');
+    if (!sidebarSocial) return;
 
-    // ถ้ายังไม่ได้อัปเกรด ค่อยทำงาน (ป้องกันการรันซ้ำ)
-    if (!socialWrapper.classList.contains('upgraded')) {
-        socialWrapper.classList.add('upgraded');
+    if (!sidebarSocial.classList.contains('upgraded')) {
+        sidebarSocial.classList.add('upgraded');
         
-        // ปรับ CSS ของกล่อง ul ให้เรียงเป็นแนวตั้งสวยๆ
-        socialWrapper.style.display = 'flex';
-        socialWrapper.style.flexDirection = 'column';
-        socialWrapper.style.gap = '15px';
-        socialWrapper.style.alignItems = 'flex-start';
-
-        // ยัด HTML ตัวใหม่เข้าไปแทนที่ของเดิม (รวม TikTok)
-        socialWrapper.innerHTML = `
-            <li class="facebook" style="width: 100%; transition: transform 0.2s;">
-                <a href="https://www.facebook.com/khlongtoei599/" target="_blank" title="facebook" style="display: flex; align-items: center; text-decoration: none;">
-                    <img src="/template1/assets/images/icons/icon-social-facebook.svg" alt="icon" style="width: 35px; height: 35px;">
-                    <span style="color: #ffffff; margin-left: 15px; font-size: 1.1rem; font-weight: 500;">Facebook สำนักงานเขตคลองเตย</span>
-                </a>
-            </li>
-            <li class="tiktok" style="width: 100%; transition: transform 0.2s;">
-                <a href="https://www.tiktok.com/@khlongtoei_district" target="_blank" title="tiktok" style="display: flex; align-items: center; text-decoration: none;">
-                    <!-- ใช้ FontAwesome สร้างไอคอน TikTok พื้นหลังดำ -->
-                    <i class="fab fa-tiktok" style="color: #ffffff; font-size: 1.3rem; background: #000000; width: 35px; height: 35px; display: flex; justify-content: center; align-items: center; border-radius: 50%;"></i>
-                    <span style="color: #ffffff; margin-left: 15px; font-size: 1.1rem; font-weight: 500;">TikTok สำนักงานเขตคลองเตย</span>
+        // ล้างไส้ในของเดิม (FB, Twitter, Line) แล้วใส่ปุ่ม Messenger กลมๆ เข้าไปแทน
+        sidebarSocial.innerHTML = `
+            <li class="messenger" style="margin-top: 15px; transition: transform 0.2s; display: flex; justify-content: center;">
+                <a target="_blank" href="https://m.me/khlongtoei599" title="ติดต่อเราผ่าน Messenger" 
+                   style="display: flex; justify-content: center; align-items: center; width: 45px; height: 45px; background: #0084FF; border-radius: 50%; box-shadow: 0 4px 15px rgba(0, 132, 255, 0.4); text-decoration: none;">
+                    <i class="fab fa-facebook-messenger" style="color: #fff; font-size: 1.5rem;"></i>
                 </a>
             </li>
         `;
     }
 }
 
-//  setTimeout หน่วงเวลาโหลด)
-upgradeSocialFooter();
-setTimeout(upgradeSocialFooter, 1000);
-setTimeout(upgradeSocialFooter, 3000);
+// สั่งรันฟังก์ชัน
+upgradeFloatingSidebar();
+setTimeout(upgradeFloatingSidebar, 1000);
+setTimeout(upgradeFloatingSidebar, 3000);
 
 replaceCalendarWithModernCards();
 setTimeout(replaceCalendarWithModernCards, 1000);
