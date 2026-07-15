@@ -152,37 +152,36 @@ upgradeFloatingSidebar();
 setTimeout(upgradeFloatingSidebar, 1000);
 setTimeout(upgradeFloatingSidebar, 3000);
 
+
 // ปรับแต่งเมนู Social Media ด้านล่าง (Footer) ให้มี Facebook + TikTok
 function upgradeFooterSocial() {
-    // หากล่อง social-wrapper
     var allSocialWrappers = document.querySelectorAll('.social-wrapper ul');
     
     allSocialWrappers.forEach(function(ul) {
-        // เช็คว่าต้อง ไม่ใช่.fixed-left-wrapper)
         if (!ul.closest('.fixed-left-wrapper')) {
-            
-            // ป้องกันการรันซ้ำ
             if (!ul.classList.contains('footer-upgraded')) {
                 ul.classList.add('footer-upgraded');
                 
-                // CSS
                 ul.style.display = 'flex';
                 ul.style.flexDirection = 'column';
                 ul.style.gap = '15px';
                 ul.style.alignItems = 'flex-start';
 
-                // HTML
+
                 ul.innerHTML = `
-                    <li class="facebook" style="width: 100%; transition: transform 0.2s;">
-                        <a href="https://www.facebook.com/khlongtoei599/" target="_blank" title="facebook" style="display: flex; align-items: center; text-decoration: none;">
-                            <img src="/template1/assets/images/icons/icon-social-facebook.svg" alt="icon" style="width: 35px; height: 35px;" onerror="this.src='https://webportal.bangkok.go.th/template2/assets/images/icons/icon-social-facebook.svg'">
-                            <span style="color: #ffffff; margin-left: 15px; font-size: 1.1rem; font-weight: 500;">Facebook สำนักงานเขตคลองเตย</span>
+                    <li style="list-style: none !important; margin: 0 !important; padding: 0 !important;">
+                        <a href="https://www.facebook.com/khlongtoei599/" target="_blank" title="facebook" 
+                           style="display: flex !important; align-items: center !important; text-decoration: none !important; width: max-content !important; height: auto !important; background: transparent !important; padding: 0 !important; border-radius: 0 !important;">
+                            <!-- ใช้ FontAwesome แทนรูปภาพเดิม เพื่อหลีกเลี่ยง CSS เก่า -->
+                            <i class="fab fa-facebook" style="color: #ffffff !important; font-size: 2.2rem !important; margin: 0 !important;"></i>
+                            <span style="color: #ffffff !important; margin-left: 15px !important; font-size: 1.1rem !important; font-weight: 500 !important; white-space: nowrap !important;">Facebook สำนักงานเขตคลองเตย</span>
                         </a>
                     </li>
-                    <li class="tiktok" style="width: 100%; transition: transform 0.2s;">
-                        <a href="https://www.tiktok.com/@khlongtoei_district" target="_blank" title="tiktok" style="display: flex; align-items: center; text-decoration: none;">
-                            <i class="fab fa-tiktok" style="color: #ffffff; font-size: 1.3rem; background: #000000; width: 35px; height: 35px; display: flex; justify-content: center; align-items: center; border-radius: 50%;"></i>
-                            <span style="color: #ffffff; margin-left: 15px; font-size: 1.1rem; font-weight: 500;">TikTok สำนักงานเขตคลองเตย</span>
+                    <li style="list-style: none !important; margin: 0 !important; padding: 0 !important;">
+                        <a href="https://www.tiktok.com/@khlongtoei_district" target="_blank" title="tiktok" 
+                           style="display: flex !important; align-items: center !important; text-decoration: none !important; width: max-content !important; height: auto !important; background: transparent !important; padding: 0 !important; border-radius: 0 !important;">
+                            <i class="fab fa-tiktok" style="color: #ffffff !important; font-size: 1.3rem !important; background: #000000 !important; width: 35px !important; height: 35px !important; display: flex !important; justify-content: center !important; align-items: center !important; border-radius: 50% !important; margin: 0 !important;"></i>
+                            <span style="color: #ffffff !important; margin-left: 15px !important; font-size: 1.1rem !important; font-weight: 500 !important; white-space: nowrap !important;">TikTok สำนักงานเขตคลองเตย</span>
                         </a>
                     </li>
                 `;
