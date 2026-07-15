@@ -1,3 +1,6 @@
+// =========================================================
+// ส่วนที่ 1: ระบบดึงข่าวสารจาก Facebook ลงมาเป็นการ์ด
+// =========================================================
 function replaceCalendarWithModernCards() {
     var calWrapper = document.getElementById('calendar-wrapper');
     if (!calWrapper) return;
@@ -39,7 +42,7 @@ function replaceCalendarWithModernCards() {
     }
 }
 
-// สร้างกล่อง Popup ซ่อนไว้ในหน้าเว็บ
+// สร้างกล่อง Popup สำหรับดูรูปจาก Facebook
 function createFbModal() {
     if (document.getElementById('fb-custom-modal')) return;
     
@@ -65,7 +68,7 @@ function createFbModal() {
     document.body.insertAdjacentHTML('beforeend', modalHtml);
 }
 
-// ฟังก์ชันเปิด/ปิด Popup Facebook
+// ฟังก์ชันเปิด/ปิด Popup ของการ์ด Facebook
 window.openFbModal = function(image, text, link, date) {
     document.getElementById('fb-modal-img').src = image;
     document.getElementById('fb-modal-text').textContent = decodeURIComponent(text);
@@ -82,7 +85,7 @@ window.closeFbModal = function(e) {
     document.body.style.overflow = '';
 };
 
-// ฟังก์ชันวาดการ์ด 
+// ฟังก์ชันวาดการ์ด Facebook ลงในหน้าเว็บ
 function renderCards(posts) {
     var container = document.getElementById('fb-card-container');
     if (!container) return;
@@ -123,6 +126,10 @@ function renderCards(posts) {
     container.innerHTML = html;
 }
 
+// =========================================================
+// ส่วนที่ 2: ปรับแต่ง UI อื่นๆ (Sidebar และ Social Icons)
+// =========================================================
+
 // ปรับแต่งเมนูด้านซ้าย (เหลือแค่ปุ่ม Messenger)
 function upgradeFloatingSidebar() {
     var sidebarSocial = document.querySelector('.fixed-left-wrapper .social-wrapper ul');
@@ -142,7 +149,7 @@ function upgradeFloatingSidebar() {
     }
 }
 
-// ปรับแต่งเมนู Social Media ด้านล่าง ให้มี FbTT
+// ปรับแต่งเมนู Social Media ด้านล่าง ให้มี Facebook และ TikTok
 function upgradeFooterSocial() {
     var allSocialWrappers = document.querySelectorAll('.social-wrapper ul');
     
@@ -178,74 +185,45 @@ function upgradeFooterSocial() {
 }
 
 // =========================================================
-// สร้างระบบ Popup นำทาง Google Maps สไตล์แอปพลิเคชัน (มีแผนที่ฝังในตัว)
+// ส่วนที่ 3: ระบบฝังแผนที่ (Embed Map) ใน Footer
 // =========================================================
 function setupMapNavigation() {
-    if (!document.getElementById('custom-map-modal')) {
-        var mapModalHtml = `
-            <div id="custom-map-modal" class="map-modal-overlay" onclick="closeMapModal(event)">
-                <!-- ขยายกล่องให้กว้างขึ้นนิดนึง (max-width: 500px) เพื่อให้แผนที่ดูสวย -->
-                <div class="map-modal-box" style="max-width: 500px;" onclick="event.stopPropagation()">
-                    
-                    <h2 style="font-size: 1.6rem; font-weight: 700; color: #1e293b; margin-bottom: 15px; font-family: 'Prompt', sans-serif;">📍 แผนที่สำนักงานเขตคลองเตย</h2>
-                    
-                    <!-- 🗺️ ส่วนที่ฝัง Google Maps (Embed) -->
-                    <div style="border-radius: 12px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; border: 1px solid #e2e8f0; background: #f8fafc;">
-                        <iframe width="100%" height="280" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" 
-                                src="https://maps.google.com/maps?q=สำนักงานเขตคลองเตย&t=&z=16&ie=UTF8&iwloc=&output=embed"
-                                style="display: block;">
-                        </iframe>
-                    </div>
-                    
-                    <!-- ปุ่มเปิดแอปแยกเผื่อต้องการนำทางจริงจัง -->
-                    <a href="https://maps.app.goo.gl/GY4LhYZCkKfCtYBk7" target="_blank" class="map-btn-navigate" onclick="closeMapModal()">
-                        🚀 เปิดแอป Google Maps เพื่อนำทาง
-                    </a>
-                    
-                    <button class="map-btn-cancel" onclick="closeMapModal(event)">ปิดหน้าต่าง</button>
+    // พุ่งเป้าไปที่พื้นที่ว่าง .text-content ที่อยู่ข้างๆ ไอคอนแผนที่
+    var mapContainer = document.querySelector('.group-footer.left .group-content-footer .text-content');
+    
+    // ถ้าเจอพื้นที่ว่าง และยังไม่ได้ฝังแผนที่ลงไป
+    if (mapContainer && !mapContainer.classList.contains('map-embedded')) {
+        mapContainer.classList.add('map-embedded');
+        
+        // สร้าง HTML แผนที่ฝัง และ ปุ่มนำทาง
+        var embedHtml = `
+            <div style="margin-top: 5px; width: 100%; max-width: 450px;">
+                
+                <!-- 🗺️ กรอบแผนที่ Google Maps (เลื่อนดูได้) -->
+                <div style="border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.15); border: 1px solid #e2e8f0; background: #fff;">
+                    <iframe width="100%" height="220" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" 
+                            src="https://maps.google.com/maps?q=สำนักงานเขตคลองเตย&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                            style="display: block;">
+                    </iframe>
                 </div>
+                
+                <!-- 🚀 ปุ่มกดเพื่อนำทาง (เปิดแอป Google Maps) -->
+                <a href="https://maps.app.goo.gl/GY4LhYZCkKfCtYBk7" target="_blank" 
+                   style="display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(to right, #059669, #0d9488); color: #ffffff !important; text-decoration: none !important; padding: 12px; border-radius: 12px; font-size: 1.1rem; font-weight: bold; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2); margin-top: 15px; transition: transform 0.2s;"
+                   onmouseover="this.style.transform='scale(0.97)'" 
+                   onmouseout="this.style.transform='scale(1)'">
+                    📍 นำทางด้วย Google Maps
+                </a>
             </div>
         `;
-        document.body.insertAdjacentHTML('beforeend', mapModalHtml);
-    }
-
-    var mapContainer = document.querySelector('.group-footer.left .group-content-footer');
-    if (mapContainer && !mapContainer.classList.contains('map-upgraded')) {
-        mapContainer.classList.add('map-upgraded');
         
-        mapContainer.style.cursor = 'pointer';
-        mapContainer.style.transition = 'transform 0.2s, background 0.2s';
-        mapContainer.style.borderRadius = '15px';
-        mapContainer.style.padding = '10px';
-        mapContainer.style.position = 'relative'; 
-        mapContainer.style.zIndex = '50';
-        
-        mapContainer.addEventListener('mouseover', function() {
-            this.style.background = 'rgba(255,255,255,0.05)';
-            this.style.transform = 'translateY(-2px)';
-        });
-        mapContainer.addEventListener('mouseout', function() {
-            this.style.background = 'transparent';
-            this.style.transform = 'translateY(0)';
-        });
-
-        mapContainer.addEventListener('click', function(e) {
-            e.preventDefault();
-            document.getElementById('custom-map-modal').classList.add('active');
-            document.body.style.overflow = 'hidden'; 
-        });
+        // ยัดแผนที่และปุ่มลงไปในพื้นที่ว่าง
+        mapContainer.innerHTML = embedHtml;
     }
 }
 
-// ฟังก์ชันปิด Popup Map
-window.closeMapModal = function(e) {
-    if(e) e.preventDefault();
-    document.getElementById('custom-map-modal').classList.remove('active');
-    document.body.style.overflow = ''; 
-};
-
 // =========================================================
-// ตัวสั่งรันฟังก์ชันทั้งหมด (รอ HTML โหลดเสร็จ)
+// ส่วนที่ 4: ตัวสั่งรันฟังก์ชันทั้งหมด (รอ HTML โหลดเสร็จ)
 // =========================================================
 function initAllCustomScripts() {
     upgradeFloatingSidebar();
@@ -254,13 +232,16 @@ function initAllCustomScripts() {
     setupMapNavigation();
 }
 
+// รอให้โครงสร้างเว็บโหลดเสร็จก่อน ถึงจะเริ่มทำงานเพื่อป้องกัน Error
 document.addEventListener("DOMContentLoaded", function() {
     initAllCustomScripts();
     
+    // หน่วงเวลารันซ้ำเผื่อเน็ตช้าหรือเว็บหลักโหลดสคริปต์อื่นมาทับ
     setTimeout(initAllCustomScripts, 1000);
     setTimeout(initAllCustomScripts, 3000);
 });
 
+// กันเหนียวอีกชั้น รันอีกรอบตอนเว็บโหลดภาพเสร็จสมบูรณ์
 window.addEventListener("load", function() {
     initAllCustomScripts();
 });
