@@ -157,7 +157,7 @@ code ไม่ได้ยากครับ css ง่ายๆ ใครๆก
     font-size: 1.05rem;
     color: #333;
     line-height: 1.6;
-    white-space: pre-wrap; /* สำคัญมาก! ช่วยรักษาย่อหน้าและบรรทัดใหม่จากเฟซบุ๊กไว้ */
+    white-space: pre-wrap; /* ช่วยรักษาย่อหน้าและบรรทัดใหม่จากFB */
     margin-bottom: 20px;
 }
 
