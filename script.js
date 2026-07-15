@@ -178,21 +178,31 @@ function upgradeFooterSocial() {
 }
 
 // =========================================================
-// สร้างระบบ Popup นำทาง Google Maps สไตล์แอปพลิเคชัน
+// สร้างระบบ Popup นำทาง Google Maps สไตล์แอปพลิเคชัน (มีแผนที่ฝังในตัว)
 // =========================================================
 function setupMapNavigation() {
     if (!document.getElementById('custom-map-modal')) {
         var mapModalHtml = `
             <div id="custom-map-modal" class="map-modal-overlay" onclick="closeMapModal(event)">
-                <div class="map-modal-box" onclick="event.stopPropagation()">
-                    <div class="map-modal-icon">📍</div>
-                    <h2 style="font-size: 1.6rem; font-weight: 700; color: #1e293b; margin-bottom: 10px; font-family: 'Prompt', sans-serif;">นำทางไปสำนักงานเขต</h2>
-                    <p style="color: #64748b; font-size: 1.1rem; line-height: 1.5; font-family: 'Sarabun', sans-serif;">คุณต้องการเปิดแอปพลิเคชัน Google Maps เพื่อนำทางไปยัง <strong>สำนักงานเขตคลองเตย</strong> ใช่หรือไม่?</p>
+                <!-- ขยายกล่องให้กว้างขึ้นนิดนึง (max-width: 500px) เพื่อให้แผนที่ดูสวย -->
+                <div class="map-modal-box" style="max-width: 500px;" onclick="event.stopPropagation()">
                     
+                    <h2 style="font-size: 1.6rem; font-weight: 700; color: #1e293b; margin-bottom: 15px; font-family: 'Prompt', sans-serif;">📍 แผนที่สำนักงานเขตคลองเตย</h2>
+                    
+                    <!-- 🗺️ ส่วนที่ฝัง Google Maps (Embed) -->
+                    <div style="border-radius: 12px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; border: 1px solid #e2e8f0; background: #f8fafc;">
+                        <iframe width="100%" height="280" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" 
+                                src="https://maps.google.com/maps?q=สำนักงานเขตคลองเตย&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                                style="display: block;">
+                        </iframe>
+                    </div>
+                    
+                    <!-- ปุ่มเปิดแอปแยกเผื่อต้องการนำทางจริงจัง -->
                     <a href="https://maps.app.goo.gl/GY4LhYZCkKfCtYBk7" target="_blank" class="map-btn-navigate" onclick="closeMapModal()">
-                        🚀 เริ่มนำทางเลย
+                        🚀 เปิดแอป Google Maps เพื่อนำทาง
                     </a>
-                    <button class="map-btn-cancel" onclick="closeMapModal(event)">ยกเลิก</button>
+                    
+                    <button class="map-btn-cancel" onclick="closeMapModal(event)">ปิดหน้าต่าง</button>
                 </div>
             </div>
         `;
@@ -203,7 +213,6 @@ function setupMapNavigation() {
     if (mapContainer && !mapContainer.classList.contains('map-upgraded')) {
         mapContainer.classList.add('map-upgraded');
         
-        // ย้ายโค้ด 6 บรรทัดที่หลุด กลับเข้ามาไว้ในนี้ครับ! ✔️
         mapContainer.style.cursor = 'pointer';
         mapContainer.style.transition = 'transform 0.2s, background 0.2s';
         mapContainer.style.borderRadius = '15px';
