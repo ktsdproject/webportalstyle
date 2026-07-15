@@ -124,9 +124,8 @@ function renderCards(posts) {
     
     container.innerHTML = html;
 }
-// =========================================================
+
 // ปรับแต่งเมนูด้านซ้าย (เหลือแค่ปุ่ม Messenger)
-// =========================================================
 function upgradeFloatingSidebar() {
     // social-wrapper
     var sidebarSocial = document.querySelector('.fixed-left-wrapper .social-wrapper ul');
@@ -153,7 +152,7 @@ setTimeout(upgradeFloatingSidebar, 1000);
 setTimeout(upgradeFloatingSidebar, 3000);
 
 
-// ปรับแต่งเมนู Social Media ด้านล่าง (Footer) ให้มี Facebook + TikTok
+// ปรับแต่งเมนู Social Media ด้านล่าง ให้มี FbTT
 function upgradeFooterSocial() {
     var allSocialWrappers = document.querySelectorAll('.social-wrapper ul');
     
@@ -173,15 +172,15 @@ function upgradeFooterSocial() {
                         <a href="https://www.facebook.com/khlongtoei599/" target="_blank" title="facebook" 
                            style="display: flex !important; align-items: center !important; text-decoration: none !important; width: max-content !important; height: auto !important; background: transparent !important; padding: 0 !important; border-radius: 0 !important;">
                             <!-- ใช้ FontAwesome แทนรูปภาพเดิม เพื่อหลีกเลี่ยง CSS เก่า -->
-                            <i class="fab fa-facebook" style="color: #ffffff !important; font-size: 2.2rem !important; margin: 0 !important;"></i>
-                            <span style="color: #ffffff !important; margin-left: 15px !important; font-size: 1.1rem !important; font-weight: 500 !important; white-space: nowrap !important;">Facebook สำนักงานเขตคลองเตย</span>
+                            <i class="fab fa-facebook" style="color: #ffffff !important; font-size: 2.5rem !important; margin: 0 !important;"></i>
+                            <span style="color: #ffffff !important; margin-left: 15px !important; font-size: 1.5rem !important; font-weight: 500 !important; white-space: nowrap !important;">Facebook สำนักงานเขตคลองเตย</span>
                         </a>
                     </li>
                     <li style="list-style: none !important; margin: 0 !important; padding: 0 !important;">
                         <a href="https://www.tiktok.com/@khlongtoei_district" target="_blank" title="tiktok" 
                            style="display: flex !important; align-items: center !important; text-decoration: none !important; width: max-content !important; height: auto !important; background: transparent !important; padding: 0 !important; border-radius: 0 !important;">
                             <i class="fab fa-tiktok" style="color: #ffffff !important; font-size: 1.3rem !important; background: #000000 !important; width: 35px !important; height: 35px !important; display: flex !important; justify-content: center !important; align-items: center !important; border-radius: 50% !important; margin: 0 !important;"></i>
-                            <span style="color: #ffffff !important; margin-left: 15px !important; font-size: 1.1rem !important; font-weight: 500 !important; white-space: nowrap !important;">TikTok สำนักงานเขตคลองเตย</span>
+                            <span style="color: #ffffff !important; margin-left: 15px !important; font-size: 1.5rem !important; font-weight: 500 !important; white-space: nowrap !important;">TikTok สำนักงานเขตคลองเตย</span>
                         </a>
                     </li>
                 `;
