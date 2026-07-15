@@ -201,7 +201,7 @@ function setupMapNavigation() {
                 
                 <!-- 🗺️ กรอบแผนที่ Google Maps (เลื่อนดูได้) -->
                 <div style="border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.15); border: 1px solid #e2e8f0; background: #fff;">
-                    <iframe width="100%" height="220" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" 
+                    <iframe width="100%" height="250" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" 
                             src="https://maps.google.com/maps?q=สำนักงานเขตคลองเตย&t=&z=16&ie=UTF8&iwloc=&output=embed"
                             style="display: block;">
                     </iframe>
@@ -209,7 +209,7 @@ function setupMapNavigation() {
                 
                 <!-- 🚀 ปุ่มกดเพื่อนำทาง (เปิดแอป Google Maps) -->
                 <a href="https://maps.app.goo.gl/GY4LhYZCkKfCtYBk7" target="_blank" 
-                   style="display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(to right, #059669, #0d9488); color: #ffffff !important; text-decoration: none !important; padding: 12px; border-radius: 12px; font-size: 1.1rem; font-weight: bold; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2); margin-top: 15px; transition: transform 0.2s;"
+                   style="display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(to right, #059669, #0d9488); color: #ffffff !important; text-decoration: none !important; padding: 12px; border-radius: 12px; font-size: 2rem; font-weight: bold; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2); margin-top: 15px; transition: transform 0.2s;"
                    onmouseover="this.style.transform='scale(0.97)'" 
                    onmouseout="this.style.transform='scale(1)'">
                     📍 นำทางด้วย Google Maps
