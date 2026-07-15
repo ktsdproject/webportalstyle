@@ -199,3 +199,67 @@ setTimeout(replaceCalendarWithModernCards, 1000);
 setTimeout(replaceCalendarWithModernCards, 3000);
 
 
+// GGMAPPPPPP
+
+function setupMapNavigation() {
+    // 1. สร้าง HTML ของ Popup ซ่อนไว้ในหน้าเว็บ (ถ้ายังไม่มี)
+    if (!document.getElementById('custom-map-modal')) {
+        var mapModalHtml = `
+            <div id="custom-map-modal" class="map-modal-overlay" onclick="closeMapModal(event)">
+                <div class="map-modal-box" onclick="event.stopPropagation()">
+                    <div class="map-modal-icon">📍</div>
+                    <h2 style="font-size: 1.6rem; font-weight: 700; color: #1e293b; margin-bottom: 10px; font-family: 'Prompt', sans-serif;">นำทางไปสำนักงานเขต</h2>
+                    <p style="color: #64748b; font-size: 1.1rem; line-height: 1.5; font-family: 'Sarabun', sans-serif;">คุณต้องการเปิดแอปพลิเคชัน Google Maps เพื่อนำทางไปยัง <strong>สำนักงานเขตคลองเตย</strong> ใช่หรือไม่?</p>
+                    
+                    <a href="https://maps.app.goo.gl/GY4LhYZCkKfCtYBk7" target="_blank" class="map-btn-navigate" onclick="closeMapModal()">
+                        🚀 เริ่มนำทางเลย
+                    </a>
+                    <button class="map-btn-cancel" onclick="closeMapModal(event)">ยกเลิก</button>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', mapModalHtml);
+    }
+
+    // 2. ไปดักจับกล่องแผนที่เดิมใน Footer ฝั่งซ้าย
+    var mapContainer = document.querySelector('.group-footer.left .group-content-footer');
+    if (mapContainer && !mapContainer.classList.contains('map-upgraded')) {
+        mapContainer.classList.add('map-upgraded');
+        
+        // ปรับให้กล่องเดิมดูรู้ว่ากดได้ (มีรูปนิ้วชี้ และขยับได้ตอนเอาเมาส์ชี้)
+        mapContainer.style.cursor = 'pointer';
+        mapContainer.style.transition = 'transform 0.2s, background 0.2s';
+        mapContainer.style.borderRadius = '15px';
+        mapContainer.style.padding = '10px';
+        
+        mapContainer.addEventListener('mouseover', function() {
+            this.style.background = 'rgba(255,255,255,0.05)';
+            this.style.transform = 'translateY(-2px)';
+        });
+        mapContainer.addEventListener('mouseout', function() {
+            this.style.background = 'transparent';
+            this.style.transform = 'translateY(0)';
+        });
+
+        // เมื่อกดกล่องแผนที่ ให้เรียกเปิด Popup
+        mapContainer.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('custom-map-modal').classList.add('active');
+            document.body.style.overflow = 'hidden'; // ล็อกฉากหลังไม่ให้เลื่อน
+        });
+    }
+}
+
+// ฟังก์ชันปิด Popup
+window.closeMapModal = function(e) {
+    if(e) e.preventDefault();
+    document.getElementById('custom-map-modal').classList.remove('active');
+    document.body.style.overflow = ''; // ปลดล็อกฉากหลัง
+};
+
+// สั่งรันฟังก์ชัน
+setupMapNavigation();
+setTimeout(setupMapNavigation, 1000);
+setTimeout(setupMapNavigation, 3000);
+
+
