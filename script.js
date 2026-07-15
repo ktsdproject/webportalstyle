@@ -139,7 +139,7 @@ function upgradeFloatingSidebar() {
         sidebarSocial.classList.add('upgraded');
         
         sidebarSocial.innerHTML = `
-            <li class="messenger" style="margin-top: 15px; transition: transform 0.2s; display: flex; justify-content: center;">
+            <li class="messenger" style="margin-top: 5px; transition: transform 0.2s; display: flex; justify-content: center;">
                 <a target="_blank" href="https://m.me/khlongtoei599" title="ติดต่อเราผ่าน Messenger" 
                    style="display: flex; justify-content: center; align-items: center; width: 45px; height: 45px; background: #0084FF; border-radius: 50%; box-shadow: 0 4px 15px rgba(0, 132, 255, 0.4); text-decoration: none;">
                     <i class="fab fa-facebook-messenger" style="color: #fff; font-size: 1.5rem;"></i>
