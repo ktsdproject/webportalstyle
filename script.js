@@ -246,13 +246,12 @@ function upgradeFooterAddress() {
         // เขียนทับด้วย HTML ใหม่ (ชิดขวา และย้ายไอคอนไปไว้ด้านหลังข้อความ)
         addressTitle.innerHTML = `
             <div style="text-align: right; color: #ffffff; line-height: 1.8; margin-bottom: 25px;">
-                <strong style="font-size: 1.8rem; color: #fbbf24; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">สำนักงานเขตคลองเตย</strong><br>
-                <span style="font-size: 1.2rem; font-weight: 300;">
+                <strong style="font-size: 2.5rem; color: #fbbf24; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">สำนักงานเขตคลองเตย</strong><br>
+                <span style="font-size: 2.0rem; font-weight: 300;">
                     599 สามแยกกล้วยน้ำไท แขวงคลองเตย เขตคลองเตย<br>
                     กรุงเทพมหานคร 10110
                 </span>
-                
-                <div style="margin-top: 15px; font-size: 1.15rem; font-weight: 300;">
+                <div style="margin-top: 5px; font-size: 2.0rem; font-weight: 300;">
                     <div style="margin-bottom: 5px;">
                         โทรศัพท์ : 0 2240 2121 &nbsp;&nbsp;|&nbsp;&nbsp; โทรสาร : 0 2249 0260
                         <i class="fas fa-phone-alt" style="margin-left: 10px; color: #fbbf24;"></i> 
@@ -262,7 +261,7 @@ function upgradeFooterAddress() {
                         <i class="fas fa-envelope" style="margin-left: 10px; color: #fbbf24;"></i> 
                     </div>
                     <div>
-                        E-Mail : <a href="mailto:khlongtoei.district@gmail.com" style="color: #ffffff; text-decoration: none;">khlongtoei.district@gmail.com</a>
+                        E-Mail : <a href="mailto:khlongtoei.district@gmail.com     " style="color: #ffffff; text-decoration: none;">khlongtoei.district@gmail.com</a>
                         <i class="fas fa-envelope" style="margin-left: 10px; color: #fbbf24;"></i> 
                     </div>
                 </div>
