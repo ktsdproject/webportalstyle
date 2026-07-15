@@ -13,6 +13,10 @@ code ไม่ได้ยากครับ css ง่ายๆ ใครๆก
 .item-Onbanner-outer, .item-Onbanner-inner, .bg-layer { 
     display: none !important; 
 }
+/* ลบ ::before ใน Footer */
+#footer-wrapper .bg-color-primary::before {
+    pointer-events: none !important;
+}
 /* ลบไอคอน W3C */
 .group-w3c {
     display: none !important;
