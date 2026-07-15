@@ -31,7 +31,6 @@ function replaceCalendarWithModernCards() {
         fetch(GAS_WEB_APP_URL)
             .then(response => response.json())
             .then(data => {
-                // สมมติว่าอยากโชว์แค่ 12 การ์ดล่าสุด ก็ใช้ .slice(0, 12) ตัดข้อมูล
                 renderCards(data.slice(0, 12)); 
             })
             .catch(error => {
@@ -42,7 +41,6 @@ function replaceCalendarWithModernCards() {
 
 // สร้างกล่อง Popup ซ่อนไว้ในหน้าเว็บ
 function createFbModal() {
-    // ถ้ามีแล้วไม่ต้องสร้างใหม่
     if (document.getElementById('fb-custom-modal')) return;
     
     var modalHtml = `
@@ -67,7 +65,7 @@ function createFbModal() {
     document.body.insertAdjacentHTML('beforeend', modalHtml);
 }
 
-// ฟังก์ชันเปิด/ปิด Popup
+// ฟังก์ชันเปิด/ปิด Popup Facebook
 window.openFbModal = function(image, text, link, date) {
     document.getElementById('fb-modal-img').src = image;
     document.getElementById('fb-modal-text').textContent = decodeURIComponent(text);
@@ -127,14 +125,12 @@ function renderCards(posts) {
 
 // ปรับแต่งเมนูด้านซ้าย (เหลือแค่ปุ่ม Messenger)
 function upgradeFloatingSidebar() {
-    // social-wrapper
     var sidebarSocial = document.querySelector('.fixed-left-wrapper .social-wrapper ul');
     if (!sidebarSocial) return;
 
     if (!sidebarSocial.classList.contains('upgraded')) {
         sidebarSocial.classList.add('upgraded');
         
-        // ล้างของเดิม ใส่ Messenger 
         sidebarSocial.innerHTML = `
             <li class="messenger" style="margin-top: 15px; transition: transform 0.2s; display: flex; justify-content: center;">
                 <a target="_blank" href="https://m.me/khlongtoei599" title="ติดต่อเราผ่าน Messenger" 
@@ -145,12 +141,6 @@ function upgradeFloatingSidebar() {
         `;
     }
 }
-
-// สั่งรันแบบหน่วงเวลา
-upgradeFloatingSidebar();
-setTimeout(upgradeFloatingSidebar, 1000);
-setTimeout(upgradeFloatingSidebar, 3000);
-
 
 // ปรับแต่งเมนู Social Media ด้านล่าง ให้มี FbTT
 function upgradeFooterSocial() {
@@ -166,12 +156,10 @@ function upgradeFooterSocial() {
                 ul.style.gap = '15px';
                 ul.style.alignItems = 'flex-start';
 
-
                 ul.innerHTML = `
                     <li style="list-style: none !important; margin: 0 !important; padding: 0 !important;">
                         <a href="https://www.facebook.com/khlongtoei599/" target="_blank" title="facebook" 
                            style="display: flex !important; align-items: center !important; text-decoration: none !important; width: max-content !important; height: auto !important; background: transparent !important; padding: 0 !important; border-radius: 0 !important;">
-                            <!-- ใช้ FontAwesome แทนรูปภาพเดิม เพื่อหลีกเลี่ยง CSS เก่า -->
                             <i class="fab fa-facebook" style="color: #ffffff !important; font-size: 3.0rem !important; margin: 0 !important;"></i>
                             <span style="color: #ffffff !important; margin-left: 15px !important; font-size: 1.5rem !important; font-weight: 500 !important; white-space: nowrap !important;">Facebook สำนักงานเขตคลองเตย</span>
                         </a>
@@ -189,20 +177,10 @@ function upgradeFooterSocial() {
     });
 }
 
-// สั่งรันแบบหน่วงเวลา
-upgradeFooterSocial();
-setTimeout(upgradeFooterSocial, 1000);
-setTimeout(upgradeFooterSocial, 3000);
-
-replaceCalendarWithModernCards();
-setTimeout(replaceCalendarWithModernCards, 1000);
-setTimeout(replaceCalendarWithModernCards, 3000);
-
-
-// GGMAPPPPPP
-
+// =========================================================
+// สร้างระบบ Popup นำทาง Google Maps สไตล์แอปพลิเคชัน
+// =========================================================
 function setupMapNavigation() {
-    // 1. สร้าง HTML ของ Popup ซ่อนไว้ในหน้าเว็บ (ถ้ายังไม่มี)
     if (!document.getElementById('custom-map-modal')) {
         var mapModalHtml = `
             <div id="custom-map-modal" class="map-modal-overlay" onclick="closeMapModal(event)">
@@ -221,16 +199,17 @@ function setupMapNavigation() {
         document.body.insertAdjacentHTML('beforeend', mapModalHtml);
     }
 
-    // 2. ไปดักจับกล่องแผนที่เดิมใน Footer ฝั่งซ้าย
     var mapContainer = document.querySelector('.group-footer.left .group-content-footer');
     if (mapContainer && !mapContainer.classList.contains('map-upgraded')) {
         mapContainer.classList.add('map-upgraded');
         
-        // ปรับให้กล่องเดิมดูรู้ว่ากดได้ (มีรูปนิ้วชี้ และขยับได้ตอนเอาเมาส์ชี้)
+        // ย้ายโค้ด 6 บรรทัดที่หลุด กลับเข้ามาไว้ในนี้ครับ! ✔️
         mapContainer.style.cursor = 'pointer';
         mapContainer.style.transition = 'transform 0.2s, background 0.2s';
         mapContainer.style.borderRadius = '15px';
         mapContainer.style.padding = '10px';
+        mapContainer.style.position = 'relative'; 
+        mapContainer.style.zIndex = '50';
         
         mapContainer.addEventListener('mouseover', function() {
             this.style.background = 'rgba(255,255,255,0.05)';
@@ -241,32 +220,36 @@ function setupMapNavigation() {
             this.style.transform = 'translateY(0)';
         });
 
-        // เมื่อกดกล่องแผนที่ ให้เรียกเปิด Popup
         mapContainer.addEventListener('click', function(e) {
             e.preventDefault();
             document.getElementById('custom-map-modal').classList.add('active');
-            document.body.style.overflow = 'hidden'; // ล็อกฉากหลังไม่ให้เลื่อน
+            document.body.style.overflow = 'hidden'; 
         });
     }
 }
 
-// ฟังก์ชันปิด Popup
+// ฟังก์ชันปิด Popup Map
 window.closeMapModal = function(e) {
     if(e) e.preventDefault();
     document.getElementById('custom-map-modal').classList.remove('active');
-    document.body.style.overflow = ''; // ปลดล็อกฉากหลัง
+    document.body.style.overflow = ''; 
 };
 
-        mapContainer.style.cursor = 'pointer';
-        mapContainer.style.transition = 'transform 0.2s, background 0.2s';
-        mapContainer.style.borderRadius = '15px';
-        mapContainer.style.padding = '10px';
-        mapContainer.style.position = 'relative';
-        mapContainer.style.zIndex = '50';
+// =========================================================
+// ตัวสั่งรันฟังก์ชันทั้งหมด (รันแบบหน่วงเวลาเพื่อหลบความอืดของเว็บหลัก)
+// =========================================================
+upgradeFloatingSidebar();
+setTimeout(upgradeFloatingSidebar, 1000);
+setTimeout(upgradeFloatingSidebar, 3000);
 
-// สั่งรันฟังก์ชัน
+upgradeFooterSocial();
+setTimeout(upgradeFooterSocial, 1000);
+setTimeout(upgradeFooterSocial, 3000);
+
+replaceCalendarWithModernCards();
+setTimeout(replaceCalendarWithModernCards, 1000);
+setTimeout(replaceCalendarWithModernCards, 3000);
+
 setupMapNavigation();
 setTimeout(setupMapNavigation, 1000);
 setTimeout(setupMapNavigation, 3000);
-
-
