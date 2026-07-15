@@ -257,6 +257,13 @@ window.closeMapModal = function(e) {
     document.body.style.overflow = ''; // ปลดล็อกฉากหลัง
 };
 
+        mapContainer.style.cursor = 'pointer';
+        mapContainer.style.transition = 'transform 0.2s, background 0.2s';
+        mapContainer.style.borderRadius = '15px';
+        mapContainer.style.padding = '10px';
+        mapContainer.style.position = 'relative';
+        mapContainer.style.zIndex = '50';
+
 // สั่งรันฟังก์ชัน
 setupMapNavigation();
 setTimeout(setupMapNavigation, 1000);
