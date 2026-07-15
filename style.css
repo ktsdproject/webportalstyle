@@ -6,7 +6,7 @@ code ไม่ได้ยากครับ css ง่ายๆ ใครๆก
 แต่ไอเดีย วิธีทำ วิธีคิด ต่างหาก ที่ต้องพัฒนาอยู่ตลอด ลองเอาไปต่อยอดดูนะครับ
 */
 
-/* ลบกล่องแบนเนอร์และฟิล์มดำ */
+/* ลบกล่องแบนเนอร์และฟิล์มดำในสส่วนของแบนเนอร์ */
 .item-Onbanner-outer, .item-Onbanner-inner, .bg-layer { 
     display: none !important; 
 }
@@ -18,7 +18,6 @@ code ไม่ได้ยากครับ css ง่ายๆ ใครๆก
     gap: 20px;
     padding: 10px 0;
 }
-
 /* สไตล์ของการ์ดแต่ละใบ */
 .fb-card {
     background: #ffffff;
@@ -31,20 +30,17 @@ code ไม่ได้ยากครับ css ง่ายๆ ใครๆก
     flex-direction: column;
     border: 1px solid #eee;
 }
-
-/* เอฟเฟกต์เวลาเอาเมาส์ชี้ (เด้งขึ้น + เงาเข้มขึ้น) */
+/* เอฟเฟกต์เวลาเอาเมาส์ชี้ */
 .fb-card:hover {
     transform: translateY(-8px);
     box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
 }
-
 /* รูปภาพปกของการ์ด */
 .fb-img {
     width: 100%;
     height: 160px;
     object-fit: cover;
 }
-
 /* พื้นที่ใส่ข้อความ */
 .fb-content {
     padding: 15px;
@@ -52,7 +48,6 @@ code ไม่ได้ยากครับ css ง่ายๆ ใครๆก
     display: flex;
     flex-direction: column;
 }
-
 /* วันที่โพสต์ */
 .fb-date {
     font-size: 0.8rem;
@@ -60,8 +55,7 @@ code ไม่ได้ยากครับ css ง่ายๆ ใครๆก
     margin-bottom: 8px;
     font-weight: 600;
 }
-
-/* ข้อความโพสต์ (ตัดบรรทัดที่ 3 อัตโนมัติถ้าข้อความยาวไป) */
+/* ข้อความโพสต์ (ตัดบรรทัดที่ 3 อัตโนมัติถ้ายาวไป) */
 .fb-text {
     font-size: 0.95rem;
     color: #333;
@@ -71,10 +65,121 @@ code ไม่ได้ยากครับ css ง่ายๆ ใครๆก
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
-
 /* Responsive: ซ่อนการ์ดใบที่ 7-12 เมื่อดูผ่านมือถือ */
 @media (max-width: 768px) {
     .fb-card:nth-child(n+7) {
         display: none !important;
     }
+}
+/* --- อัปเดตการ์ดให้รู้ว่าคลิกได้ --- */
+.fb-card {
+    cursor: pointer; /* เปลี่ยนเมาส์เป็นรูปมือ */
+}
+
+/* =========================================
+   logic สไตล์สำหรับ Popup (FB)
+   ========================================= */
+.fb-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999; /* ให้อยู่บนสุดของเว็บ */
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(4px); /* เบลอฉากหลัง */
+}
+
+.fb-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.fb-modal-box {
+    background: #fff;
+    width: 90%;
+    max-width: 600px;
+    max-height: 85vh;
+    border-radius: 16px;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    transform: translateY(30px) scale(0.95);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.fb-modal-overlay.active .fb-modal-box {
+    transform: translateY(0) scale(1);
+}
+
+/* ปุ่มกากบาท ปิด Popup */
+.fb-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    transition: 0.2s;
+}
+
+.fb-modal-close:hover {
+    background: #e74c3c; /* สีแดงตอนเอาเมาส์ชี้ */
+    transform: rotate(90deg);
+}
+
+.fb-modal-img {
+    width: 100%;
+    max-height: 350px;
+    object-fit: contain;
+    background: #f0f2f5;
+}
+
+.fb-modal-body {
+    padding: 25px;
+}
+
+.fb-modal-text {
+    font-size: 1.05rem;
+    color: #333;
+    line-height: 1.6;
+    white-space: pre-wrap; /* สำคัญมาก! ช่วยรักษาย่อหน้าและบรรทัดใหม่จากเฟซบุ๊กไว้ */
+    margin-bottom: 20px;
+}
+
+.fb-modal-footer {
+    padding: 0 25px 25px 25px;
+    text-align: center;
+}
+
+.fb-btn {
+    display: inline-block;
+    background: #1877f2;
+    color: #fff !important;
+    padding: 12px 30px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: background 0.2s, transform 0.2s;
+    box-shadow: 0 4px 10px rgba(24, 119, 242, 0.3);
+}
+
+.fb-btn:hover {
+    background: #166fe5;
+    transform: translateY(-2px);
 }
