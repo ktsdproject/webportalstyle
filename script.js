@@ -229,7 +229,48 @@ function initAllCustomScripts() {
     upgradeFloatingSidebar();
     upgradeFooterSocial();
     replaceCalendarWithModernCards();
+    upgradeFooterAddress();
     setupMapNavigation();
+}
+// =========================================================
+// ส่วนที่ 5: จัดระเบียบที่อยู่และข้อมูลติดต่อใน Footer
+// =========================================================
+function upgradeFooterAddress() {
+    // พุ่งเป้าไปที่กล่องข้อความที่อยู่เดิม (h2.title) ใน Footer ฝั่งซ้าย
+    var addressTitle = document.querySelector('.group-footer.left .title-footer h2.title');
+    
+    // ถ้าเจอ และยังไม่ได้ปรับแต่ง
+    if (addressTitle && !addressTitle.classList.contains('address-upgraded')) {
+        addressTitle.classList.add('address-upgraded');
+        
+        // เขียนทับด้วย HTML ใหม่ (ชิดขวา และย้ายไอคอนไปไว้ด้านหลังข้อความ)
+        addressTitle.innerHTML = `
+            <div style="text-align: right; color: #ffffff; line-height: 1.8; margin-bottom: 25px;">
+                <strong style="font-size: 1.8rem; color: #fbbf24; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">สำนักงานเขตคลองเตย</strong><br>
+                <span style="font-size: 1.2rem; font-weight: 300;">
+                    599 สามแยกกล้วยน้ำไท แขวงคลองเตย เขตคลองเตย<br>
+                    กรุงเทพมหานคร 10110
+                </span>
+                
+                <div style="margin-top: 15px; font-size: 1.15rem; font-weight: 300;">
+                    <div style="margin-bottom: 5px;">
+                        โทรศัพท์ : 0 2240 2121 &nbsp;&nbsp;|&nbsp;&nbsp; โทรสาร : 0 2249 0260
+                        <i class="fas fa-phone-alt" style="margin-left: 10px; color: #fbbf24;"></i> 
+                    </div>
+                    <div style="margin-bottom: 5px;">
+                        E-Mail : <a href="mailto:saraban.khlongtoei@bangkok.go.th" style="color: #ffffff; text-decoration: none;">saraban.khlongtoei@bangkok.go.th</a>
+                        <i class="fas fa-envelope" style="margin-left: 10px; color: #fbbf24;"></i> 
+                    </div>
+                    <div>
+                        E-Mail : <a href="mailto:khlongtoei.district@gmail.com" style="color: #ffffff; text-decoration: none;">khlongtoei.district@gmail.com</a>
+                        <i class="fas fa-envelope" style="margin-left: 10px; color: #fbbf24;"></i> 
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        addressTitle.style.margin = "0";
+    }
 }
 
 // รอให้โครงสร้างเว็บโหลดเสร็จก่อน ถึงจะเริ่มทำงานเพื่อป้องกัน Error
