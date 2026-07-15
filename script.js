@@ -172,7 +172,7 @@ function upgradeFooterSocial() {
                         <a href="https://www.facebook.com/khlongtoei599/" target="_blank" title="facebook" 
                            style="display: flex !important; align-items: center !important; text-decoration: none !important; width: max-content !important; height: auto !important; background: transparent !important; padding: 0 !important; border-radius: 0 !important;">
                             <!-- ใช้ FontAwesome แทนรูปภาพเดิม เพื่อหลีกเลี่ยง CSS เก่า -->
-                            <i class="fab fa-facebook" style="color: #ffffff !important; font-size: 2.5rem !important; margin: 0 !important;"></i>
+                            <i class="fab fa-facebook" style="color: #ffffff !important; font-size: 3.0rem !important; margin: 0 !important;"></i>
                             <span style="color: #ffffff !important; margin-left: 15px !important; font-size: 1.5rem !important; font-weight: 500 !important; white-space: nowrap !important;">Facebook สำนักงานเขตคลองเตย</span>
                         </a>
                     </li>
