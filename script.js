@@ -29,15 +29,26 @@ function replaceCalendarWithModernCards() {
             </div>
         `;
 
-        var GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxdEAeHYEB4DL2qzEQSN8YEXrTKfjggtqaoo1tBuAEoOi3z0fNggnZqZTp1HN9Ia_E6/exec';
+        const WORKER_API_URL = 'https://webportal-fb-api.kt-sd-project.workers.dev/';
 
-        fetch(GAS_WEB_APP_URL)
-            .then(response => response.json())
+        fetch(WORKER_API_URL)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
             .then(data => {
-                renderCards(data.slice(0, 12)); 
+                console.log("✅ โหลดข้อมูลจาก Supabase สำเร็จ!", data);
+                // ⬇️ โยนข้อมูลที่ได้ไปให้ฟังก์ชัน renderCards จัดการวาดหน้าเว็บ
+                renderCards(data);
             })
             .catch(error => {
-                console.error('Error fetching data:', error);
+                console.error('❌ Error fetching Facebook posts:', error);
+                var container = document.getElementById('fb-card-container');
+                if (container) {
+                    container.innerHTML = '<div style="text-align: center; width: 100%; padding: 40px; color: red;">เกิดข้อผิดพลาดในการโหลดข่าวสาร โปรดลองใหม่อีกครั้ง</div>';
+                }
             });
     }
 }
@@ -92,6 +103,12 @@ function renderCards(posts) {
 
     createFbModal();
 
+    // กรณีดึงข้อมูลมาได้ แต่เป็นค่าว่าง (ไม่มีโพสต์)
+    if (!posts || posts.length === 0) {
+        container.innerHTML = '<div style="text-align: center; width: 100%; padding: 40px; color: #888;">ไม่พบข้อมูลข่าวสารล่าสุด</div>';
+        return;
+    }
+
     var html = '';
     posts.forEach(function(post) {
         var formattedDate = post.date; 
@@ -110,19 +127,23 @@ function renderCards(posts) {
             console.log("Date parsing error", e);
         }
 
-        var encodedText = encodeURIComponent(post.text);
+        // จัดการกรณีโพสต์ไม่มีรูปภาพ หรือไม่มีข้อความ
+        var textSnippet = post.text ? post.text : 'คลิกเพื่อดูรายละเอียดเพิ่มเติม';
+        var encodedText = encodeURIComponent(textSnippet);
+        var imageUrl = post.image ? post.image : 'https://via.placeholder.com/400x200?text=No+Image';
         
         html += `
-            <div class="fb-card" onclick="openFbModal('${post.image}', '${encodedText}', '${post.link}', '${formattedDate}')">
-                <img src="${post.image}" class="fb-img" alt="cover">
+            <div class="fb-card" onclick="openFbModal('${imageUrl}', '${encodedText}', '${post.link}', '${formattedDate}')">
+                <img src="${imageUrl}" class="fb-img" alt="cover">
                 <div class="fb-content">
                     <div class="fb-date"><i class="far fa-clock"></i> ${formattedDate}</div>
-                    <div class="fb-text">${post.text}</div>
+                    <div class="fb-text">${textSnippet}</div>
                 </div>
             </div>
         `;
     });
     
+    // ยัด HTML ทั้งหมดลงไปแทนที่ข้อความ "กำลังโหลด..."
     container.innerHTML = html;
 }
 
@@ -232,6 +253,7 @@ function initAllCustomScripts() {
     upgradeFooterAddress();
     setupMapNavigation();
 }
+
 // =========================================================
 // ส่วนที่ 5: จัดระเบียบที่อยู่และข้อมูลติดต่อใน Footer
 // =========================================================
@@ -261,7 +283,7 @@ function upgradeFooterAddress() {
                         <i class="fas fa-envelope" style="margin-left: 10px; color: #fbbf24;"></i> 
                     </div>
                     <div>
-                        E-Mail : <a href="mailto:khlongtoei.district@gmail.com     " style="color: #ffffff; text-decoration: none;">khlongtoei.district@gmail.com</a>
+                        E-Mail : <a href="mailto:khlongtoei.district@gmail.com      " style="color: #ffffff; text-decoration: none;">khlongtoei.district@gmail.com</a>
                         <i class="fas fa-envelope" style="margin-left: 10px; color: #fbbf24;"></i> 
                     </div>
                 </div>
