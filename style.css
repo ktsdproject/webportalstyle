@@ -40,11 +40,15 @@ code ไม่ได้ยากครับ css ง่ายๆ ใครๆก
     word-break: keep-all !important;
 }
 
-/* แถม: ปลดล็อกความกว้างที่โดนฟิกซ์ไว้ ให้ตารางยืดหยุ่นขึ้นบนมือถือ */
+/* ปลดล็อกความกว้าง ให้ตารางยืดหยุ่นขึ้นบนมือถือ */
 .copyright figure.table table th,
 .copyright figure.table table td {
     width: auto !important;
     padding: 5px 10px !important;
+}
+/* ซ่อนกล่องแชร์หน้ารอง */
+.group-social-share {
+    display: none !important;
 }
 
 /* =========================================
