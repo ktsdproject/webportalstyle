@@ -178,6 +178,9 @@ function renderCards(posts) {
         return;
     }
 
+    // 🌟 เพิ่มคำสั่งเรียงลำดับโพสต์จาก "ใหม่ล่าสุด" ไป "เก่าสุด" เสมอ
+    posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+
     window.fbPostData = {}; // ล้างหน่วยความจำภาพ
 
     var html = '';
