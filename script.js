@@ -2,9 +2,10 @@
 // ส่วนที่ 1: ระบบดึงข่าวสารจาก Facebook ลงมาเป็นการ์ด
 // =========================================================
 
-// สร้างตัวแปร Global สำหรับจัดการระบบสไลด์รูปใน Popup
+// ตัวแปร Global สำหรับจัดการระบบสไลด์รูปใน Popup และเก็บข้อมูลรูปภาพของทุกโพสต์
 window.fbModalImages = [];
 window.fbModalCurrentIndex = 0;
+window.fbPostData = {}; // <--- เพิ่มตัวนี้เพื่อเก็บ Array รูปลดปัญหา HTML พัง
 
 function replaceCalendarWithModernCards() {
     var calWrapper = document.getElementById('calendar-wrapper');
@@ -42,7 +43,6 @@ function replaceCalendarWithModernCards() {
                 return response.json();
             })
             .then(data => {
-                console.log("✅ โหลดข้อมูลจาก Supabase สำเร็จ!", data);
                 renderCards(data);
             })
             .catch(error => {
@@ -55,7 +55,7 @@ function replaceCalendarWithModernCards() {
     }
 }
 
-// สร้างกล่อง Popup สำหรับดูรูปจาก Facebook (อัปเกรดระบบสไลด์ภาพ)
+// สร้างกล่อง Popup สำหรับดูรูปจาก Facebook 
 function createFbModal() {
     if (document.getElementById('fb-custom-modal')) return;
     
@@ -64,7 +64,6 @@ function createFbModal() {
             <div class="fb-modal-box" onclick="event.stopPropagation()">
                 <button class="fb-modal-close" onclick="closeFbModal(event)"><i class="fas fa-times"></i></button>
                 
-                <!-- 📸 พื้นที่แสดงรูปภาพ พร้อมปุ่มเลื่อน ซ้าย-ขวา -->
                 <div style="position: relative; width: 100%; background: #000; display: flex; align-items: center; justify-content: center; min-height: 250px;">
                     <button id="fb-prev-btn" onclick="prevFbImage(event)" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.7); color: #333; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.2rem; cursor: pointer; z-index: 10; display: none; transition: 0.2s;"><i class="fas fa-chevron-left"></i></button>
                     
@@ -72,7 +71,6 @@ function createFbModal() {
                     
                     <button id="fb-next-btn" onclick="nextFbImage(event)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.7); color: #333; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.2rem; cursor: pointer; z-index: 10; display: none; transition: 0.2s;"><i class="fas fa-chevron-right"></i></button>
                     
-                    <!-- ตัวนับจำนวนรูป (เช่น 1 / 5) -->
                     <div id="fb-img-counter" style="position: absolute; bottom: 15px; right: 15px; background: rgba(0,0,0,0.6); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; z-index: 10; display: none;">1 / 1</div>
                 </div>
 
@@ -92,7 +90,6 @@ function createFbModal() {
     `;
     document.body.insertAdjacentHTML('beforeend', modalHtml);
 
-    // เพิ่ม Hover Effect ให้ปุ่มเลื่อนรูป
     document.getElementById('fb-prev-btn').onmouseover = function() { this.style.background = '#fff'; };
     document.getElementById('fb-prev-btn').onmouseout = function() { this.style.background = 'rgba(255,255,255,0.7)'; };
     document.getElementById('fb-next-btn').onmouseover = function() { this.style.background = '#fff'; };
@@ -108,14 +105,12 @@ window.updateFbModalImage = function() {
     const prevBtn = document.getElementById('fb-prev-btn');
     const nextBtn = document.getElementById('fb-next-btn');
 
-    // ทำ Effect ค่อยๆ เฟดเปลี่ยนรูป
     imgEl.style.opacity = 0;
     setTimeout(() => {
         imgEl.src = window.fbModalImages[window.fbModalCurrentIndex];
         imgEl.style.opacity = 1;
     }, 150);
 
-    // จัดการแสดงผลปุ่ม และตัวนับเลข
     if (window.fbModalImages.length > 1) {
         counterEl.style.display = 'block';
         counterEl.textContent = (window.fbModalCurrentIndex + 1) + ' / ' + window.fbModalImages.length;
@@ -146,18 +141,14 @@ window.nextFbImage = function(e) {
 };
 
 // ---------------------------------------------------------
-// ฟังก์ชันเปิด/ปิด Popup (รับ Array รูปภาพมาประมวลผล)
+// ฟังก์ชันเปิด/ปิด Popup (รับข้อมูลจากหน่วยความจำแทน HTML)
 // ---------------------------------------------------------
-window.openFbModal = function(encodedImages, encodedText, link, date) {
-    // แกะรหัส JSON รูปภาพที่ซ่อนไว้
-    try {
-        window.fbModalImages = JSON.parse(decodeURIComponent(encodedImages));
-    } catch(e) {
-        window.fbModalImages = [decodeURIComponent(encodedImages)]; // รองรับข้อมูลเก่าที่เป็นลิงก์เดี่ยว
-    }
-
+window.openFbModal = function(postId, encodedText, link, date) {
+    // ดึง Array รูปภาพจากหน่วยความจำด้วย postId
+    window.fbModalImages = window.fbPostData[postId] || ['https://via.placeholder.com/600x400/003366/FFFFFF?text=No+Image'];
     window.fbModalCurrentIndex = 0;
-    updateFbModalImage(); // เริ่มแสดงรูปแรก
+    
+    updateFbModalImage(); 
 
     document.getElementById('fb-modal-text').textContent = decodeURIComponent(encodedText);
     document.getElementById('fb-modal-link').href = link;
@@ -187,6 +178,8 @@ function renderCards(posts) {
         return;
     }
 
+    window.fbPostData = {}; // ล้างหน่วยความจำภาพ
+
     var html = '';
     posts.forEach(function(post) {
         var formattedDate = post.date; 
@@ -201,38 +194,47 @@ function renderCards(posts) {
                 
                 formattedDate = hh + '.' + mm + ' ' + dd + '-' + mo + '-' + yyyy;
             }
-        } catch(e) {
-            console.log("Date parsing error", e);
-        }
+        } catch(e) {}
 
         var textSnippet = post.text ? post.text : 'คลิกเพื่อดูรายละเอียดเพิ่มเติม';
         var encodedText = encodeURIComponent(textSnippet);
         
         // ----------------------------------------------------
-        // แกะรูปภาพและจัด Layout หน้าปก (1 รูป หรือ 2 รูป)
+        // แกะรูปภาพ และ กรอง URL ที่ซ้ำกันจาก Facebook (ตัด Query Params ทิ้ง)
         // ----------------------------------------------------
         var imgArray = ['https://via.placeholder.com/600x400/003366/FFFFFF?text=Khlong+Toei+News'];
         if (post.image) {
             try {
                 var parsedImg = JSON.parse(post.image);
                 if (Array.isArray(parsedImg) && parsedImg.length > 0) {
-                    imgArray = parsedImg;
+                    
+                    var uniqueImages = [];
+                    var seenBases = new Set();
+                    
+                    parsedImg.forEach(function(url) {
+                        // แยกเอาเฉพาะที่อยู่ไฟล์หลัก (ตัดเครื่องหมาย ? และตัวอักษรด้านหลังทิ้งทั้งหมด)
+                        var baseUrl = url.split('?')[0]; 
+                        
+                        if (!seenBases.has(baseUrl)) {
+                            seenBases.add(baseUrl);
+                            uniqueImages.push(url); // เก็บ URL ฉบับเต็มไว้ใช้งาน
+                        }
+                    });
+                    imgArray = uniqueImages; // ตอนนี้รูปจะไม่ซ้ำกันแล้ว!
                 }
             } catch (e) {
-                imgArray = [post.image]; // กันเหนียวข้อมูลเก่า
+                imgArray = [post.image]; 
             }
         }
 
-        // เข้ารหัส Array รูปภาพเพื่อส่งไปให้ Popup ทำงาน
-        var encodedImages = encodeURIComponent(JSON.stringify(imgArray));
+        // เซฟ Array รูปลงหน่วยความจำ แยกตามรหัสโพสต์
+        window.fbPostData[post.id] = imgArray;
         
         // สร้าง HTML รูปหน้าปกการ์ด
         var coverHtml = '';
         if (imgArray.length === 1) {
-            // โพสต์มี 1 รูป: โชว์เต็มกรอบปกติ
             coverHtml = `<img src="${imgArray[0]}" class="fb-img" alt="cover" style="width: 100%; height: 160px; object-fit: cover; display: block;">`;
         } else {
-            // โพสต์มี 2 รูปขึ้นไป: แบ่งครึ่ง 50/50 สไตล์ Collage
             var moreBadge = imgArray.length > 2 
                 ? `<div style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.75); color: #fff; padding: 3px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; z-index: 2; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">+${imgArray.length - 2}</div>` 
                 : '';
@@ -246,9 +248,9 @@ function renderCards(posts) {
             `;
         }
         
-        // ประกอบร่าง HTML ของการ์ด 1 ใบ
+        // ส่งแค่ post.id เข้าไปในฟังก์ชันเปิด Popup แทนการส่ง URL รูปยาวๆ
         html += `
-            <div class="fb-card" onclick="openFbModal('${encodedImages}', '${encodedText}', '${post.link}', '${formattedDate}')">
+            <div class="fb-card" onclick="openFbModal('${post.id}', '${encodedText}', '${post.link}', '${formattedDate}')">
                 ${coverHtml}
                 <div class="fb-content">
                     <div class="fb-date"><i class="far fa-clock"></i> ${formattedDate}</div>
