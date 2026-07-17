@@ -1,6 +1,11 @@
 // =========================================================
 // ส่วนที่ 1: ระบบดึงข่าวสารจาก Facebook ลงมาเป็นการ์ด
 // =========================================================
+
+// สร้างตัวแปร Global สำหรับจัดการระบบสไลด์รูปใน Popup
+window.fbModalImages = [];
+window.fbModalCurrentIndex = 0;
+
 function replaceCalendarWithModernCards() {
     var calWrapper = document.getElementById('calendar-wrapper');
     if (!calWrapper) return;
@@ -33,14 +38,11 @@ function replaceCalendarWithModernCards() {
 
         fetch(WORKER_API_URL)
             .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
+                if (!response.ok) throw new Error('Network response was not ok');
                 return response.json();
             })
             .then(data => {
                 console.log("✅ โหลดข้อมูลจาก Supabase สำเร็จ!", data);
-                // ⬇️ โยนข้อมูลที่ได้ไปให้ฟังก์ชัน renderCards จัดการวาดหน้าเว็บ
                 renderCards(data);
             })
             .catch(error => {
@@ -53,7 +55,7 @@ function replaceCalendarWithModernCards() {
     }
 }
 
-// สร้างกล่อง Popup สำหรับดูรูปจาก Facebook
+// สร้างกล่อง Popup สำหรับดูรูปจาก Facebook (อัปเกรดระบบสไลด์ภาพ)
 function createFbModal() {
     if (document.getElementById('fb-custom-modal')) return;
     
@@ -61,7 +63,19 @@ function createFbModal() {
         <div id="fb-custom-modal" class="fb-modal-overlay" onclick="closeFbModal(event)">
             <div class="fb-modal-box" onclick="event.stopPropagation()">
                 <button class="fb-modal-close" onclick="closeFbModal(event)"><i class="fas fa-times"></i></button>
-                <img id="fb-modal-img" src="" class="fb-modal-img" alt="post image">
+                
+                <!-- 📸 พื้นที่แสดงรูปภาพ พร้อมปุ่มเลื่อน ซ้าย-ขวา -->
+                <div style="position: relative; width: 100%; background: #000; display: flex; align-items: center; justify-content: center; min-height: 250px;">
+                    <button id="fb-prev-btn" onclick="prevFbImage(event)" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.7); color: #333; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.2rem; cursor: pointer; z-index: 10; display: none; transition: 0.2s;"><i class="fas fa-chevron-left"></i></button>
+                    
+                    <img id="fb-modal-img" src="" class="fb-modal-img" alt="post image" style="width: 100%; max-height: 400px; object-fit: contain; background: #000; transition: opacity 0.2s ease-in-out;">
+                    
+                    <button id="fb-next-btn" onclick="nextFbImage(event)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.7); color: #333; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.2rem; cursor: pointer; z-index: 10; display: none; transition: 0.2s;"><i class="fas fa-chevron-right"></i></button>
+                    
+                    <!-- ตัวนับจำนวนรูป (เช่น 1 / 5) -->
+                    <div id="fb-img-counter" style="position: absolute; bottom: 15px; right: 15px; background: rgba(0,0,0,0.6); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; z-index: 10; display: none;">1 / 1</div>
+                </div>
+
                 <div class="fb-modal-body">
                     <div id="fb-modal-date" style="color: #65676B; font-size: 0.9rem; margin-bottom: 15px; font-weight:600;">
                         <i class="far fa-clock"></i> <span></span>
@@ -77,12 +91,75 @@ function createFbModal() {
         </div>
     `;
     document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+    // เพิ่ม Hover Effect ให้ปุ่มเลื่อนรูป
+    document.getElementById('fb-prev-btn').onmouseover = function() { this.style.background = '#fff'; };
+    document.getElementById('fb-prev-btn').onmouseout = function() { this.style.background = 'rgba(255,255,255,0.7)'; };
+    document.getElementById('fb-next-btn').onmouseover = function() { this.style.background = '#fff'; };
+    document.getElementById('fb-next-btn').onmouseout = function() { this.style.background = 'rgba(255,255,255,0.7)'; };
 }
 
-// ฟังก์ชันเปิด/ปิด Popup ของการ์ด Facebook
-window.openFbModal = function(image, text, link, date) {
-    document.getElementById('fb-modal-img').src = image;
-    document.getElementById('fb-modal-text').textContent = decodeURIComponent(text);
+// ---------------------------------------------------------
+// ระบบฟังก์ชันเลื่อนรูปภาพ (Slider Functions)
+// ---------------------------------------------------------
+window.updateFbModalImage = function() {
+    const imgEl = document.getElementById('fb-modal-img');
+    const counterEl = document.getElementById('fb-img-counter');
+    const prevBtn = document.getElementById('fb-prev-btn');
+    const nextBtn = document.getElementById('fb-next-btn');
+
+    // ทำ Effect ค่อยๆ เฟดเปลี่ยนรูป
+    imgEl.style.opacity = 0;
+    setTimeout(() => {
+        imgEl.src = window.fbModalImages[window.fbModalCurrentIndex];
+        imgEl.style.opacity = 1;
+    }, 150);
+
+    // จัดการแสดงผลปุ่ม และตัวนับเลข
+    if (window.fbModalImages.length > 1) {
+        counterEl.style.display = 'block';
+        counterEl.textContent = (window.fbModalCurrentIndex + 1) + ' / ' + window.fbModalImages.length;
+        
+        prevBtn.style.display = window.fbModalCurrentIndex > 0 ? 'block' : 'none';
+        nextBtn.style.display = window.fbModalCurrentIndex < window.fbModalImages.length - 1 ? 'block' : 'none';
+    } else {
+        counterEl.style.display = 'none';
+        prevBtn.style.display = 'none';
+        nextBtn.style.display = 'none';
+    }
+};
+
+window.prevFbImage = function(e) {
+    if(e) e.stopPropagation();
+    if (window.fbModalCurrentIndex > 0) {
+        window.fbModalCurrentIndex--;
+        updateFbModalImage();
+    }
+};
+
+window.nextFbImage = function(e) {
+    if(e) e.stopPropagation();
+    if (window.fbModalCurrentIndex < window.fbModalImages.length - 1) {
+        window.fbModalCurrentIndex++;
+        updateFbModalImage();
+    }
+};
+
+// ---------------------------------------------------------
+// ฟังก์ชันเปิด/ปิด Popup (รับ Array รูปภาพมาประมวลผล)
+// ---------------------------------------------------------
+window.openFbModal = function(encodedImages, encodedText, link, date) {
+    // แกะรหัส JSON รูปภาพที่ซ่อนไว้
+    try {
+        window.fbModalImages = JSON.parse(decodeURIComponent(encodedImages));
+    } catch(e) {
+        window.fbModalImages = [decodeURIComponent(encodedImages)]; // รองรับข้อมูลเก่าที่เป็นลิงก์เดี่ยว
+    }
+
+    window.fbModalCurrentIndex = 0;
+    updateFbModalImage(); // เริ่มแสดงรูปแรก
+
+    document.getElementById('fb-modal-text').textContent = decodeURIComponent(encodedText);
     document.getElementById('fb-modal-link').href = link;
     document.querySelector('#fb-modal-date span').textContent = date;
     
@@ -96,14 +173,15 @@ window.closeFbModal = function(e) {
     document.body.style.overflow = '';
 };
 
+// =========================================================
 // ฟังก์ชันวาดการ์ด Facebook ลงในหน้าเว็บ
+// =========================================================
 function renderCards(posts) {
     var container = document.getElementById('fb-card-container');
     if (!container) return;
 
     createFbModal();
 
-    // กรณีดึงข้อมูลมาได้ แต่เป็นค่าว่าง (ไม่มีโพสต์)
     if (!posts || posts.length === 0) {
         container.innerHTML = '<div style="text-align: center; width: 100%; padding: 40px; color: #888;">ไม่พบข้อมูลข่าวสารล่าสุด</div>';
         return;
@@ -127,14 +205,51 @@ function renderCards(posts) {
             console.log("Date parsing error", e);
         }
 
-        // จัดการกรณีโพสต์ไม่มีรูปภาพ หรือไม่มีข้อความ
         var textSnippet = post.text ? post.text : 'คลิกเพื่อดูรายละเอียดเพิ่มเติม';
         var encodedText = encodeURIComponent(textSnippet);
-        var imageUrl = post.image ? post.image : 'https://via.placeholder.com/400x200?text=No+Image';
         
+        // ----------------------------------------------------
+        // แกะรูปภาพและจัด Layout หน้าปก (1 รูป หรือ 2 รูป)
+        // ----------------------------------------------------
+        var imgArray = ['https://via.placeholder.com/600x400/003366/FFFFFF?text=Khlong+Toei+News'];
+        if (post.image) {
+            try {
+                var parsedImg = JSON.parse(post.image);
+                if (Array.isArray(parsedImg) && parsedImg.length > 0) {
+                    imgArray = parsedImg;
+                }
+            } catch (e) {
+                imgArray = [post.image]; // กันเหนียวข้อมูลเก่า
+            }
+        }
+
+        // เข้ารหัส Array รูปภาพเพื่อส่งไปให้ Popup ทำงาน
+        var encodedImages = encodeURIComponent(JSON.stringify(imgArray));
+        
+        // สร้าง HTML รูปหน้าปกการ์ด
+        var coverHtml = '';
+        if (imgArray.length === 1) {
+            // โพสต์มี 1 รูป: โชว์เต็มกรอบปกติ
+            coverHtml = `<img src="${imgArray[0]}" class="fb-img" alt="cover" style="width: 100%; height: 160px; object-fit: cover; display: block;">`;
+        } else {
+            // โพสต์มี 2 รูปขึ้นไป: แบ่งครึ่ง 50/50 สไตล์ Collage
+            var moreBadge = imgArray.length > 2 
+                ? `<div style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.75); color: #fff; padding: 3px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; z-index: 2; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">+${imgArray.length - 2}</div>` 
+                : '';
+            
+            coverHtml = `
+                <div style="display: flex; height: 160px; width: 100%; overflow: hidden; position: relative;">
+                    <img src="${imgArray[0]}" style="width: 50%; height: 100%; object-fit: cover; border-right: 2px solid #fff;" alt="cover 1">
+                    <img src="${imgArray[1]}" style="width: 50%; height: 100%; object-fit: cover;" alt="cover 2">
+                    ${moreBadge}
+                </div>
+            `;
+        }
+        
+        // ประกอบร่าง HTML ของการ์ด 1 ใบ
         html += `
-            <div class="fb-card" onclick="openFbModal('${imageUrl}', '${encodedText}', '${post.link}', '${formattedDate}')">
-                <img src="${imageUrl}" class="fb-img" alt="cover">
+            <div class="fb-card" onclick="openFbModal('${encodedImages}', '${encodedText}', '${post.link}', '${formattedDate}')">
+                ${coverHtml}
                 <div class="fb-content">
                     <div class="fb-date"><i class="far fa-clock"></i> ${formattedDate}</div>
                     <div class="fb-text">${textSnippet}</div>
@@ -143,7 +258,6 @@ function renderCards(posts) {
         `;
     });
     
-    // ยัด HTML ทั้งหมดลงไปแทนที่ข้อความ "กำลังโหลด..."
     container.innerHTML = html;
 }
 
@@ -151,7 +265,6 @@ function renderCards(posts) {
 // ส่วนที่ 2: ปรับแต่ง UI อื่นๆ (Sidebar และ Social Icons)
 // =========================================================
 
-// ปรับแต่งเมนูด้านซ้าย (เหลือแค่ปุ่ม Messenger)
 function upgradeFloatingSidebar() {
     var sidebarSocial = document.querySelector('.fixed-left-wrapper .social-wrapper ul');
     if (!sidebarSocial) return;
@@ -170,7 +283,6 @@ function upgradeFloatingSidebar() {
     }
 }
 
-// ปรับแต่งเมนู Social Media ด้านล่าง ให้มี Facebook และ TikTok
 function upgradeFooterSocial() {
     var allSocialWrappers = document.querySelectorAll('.social-wrapper ul');
     
@@ -209,18 +321,13 @@ function upgradeFooterSocial() {
 // ส่วนที่ 3: ระบบฝังแผนที่ (Embed Map) ใน Footer
 // =========================================================
 function setupMapNavigation() {
-    // พุ่งเป้าไปที่พื้นที่ว่าง .text-content ที่อยู่ข้างๆ ไอคอนแผนที่
     var mapContainer = document.querySelector('.group-footer.left .group-content-footer .text-content');
     
-    // ถ้าเจอพื้นที่ว่าง และยังไม่ได้ฝังแผนที่ลงไป
     if (mapContainer && !mapContainer.classList.contains('map-embedded')) {
         mapContainer.classList.add('map-embedded');
         
-        // สร้าง HTML แผนที่ฝัง และ ปุ่มนำทาง
         var embedHtml = `
             <div style="margin-top: 5px; width: 100%; max-width: 450px;">
-                
-                <!-- 🗺️ กรอบแผนที่ Google Maps (เลื่อนดูได้) -->
                 <div style="border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.15); border: 1px solid #e2e8f0; background: #fff;">
                     <iframe width="100%" height="250" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" 
                             src="https://maps.google.com/maps?q=สำนักงานเขตคลองเตย&t=&z=16&ie=UTF8&iwloc=&output=embed"
@@ -228,7 +335,6 @@ function setupMapNavigation() {
                     </iframe>
                 </div>
                 
-                <!-- 🚀 ปุ่มกดเพื่อนำทาง (เปิดแอป Google Maps) -->
                 <a href="https://maps.app.goo.gl/GY4LhYZCkKfCtYBk7" target="_blank" 
                    style="display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(to right, #059669, #0d9488); color: #ffffff !important; text-decoration: none !important; padding: 12px; border-radius: 12px; font-size: 2rem; font-weight: bold; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2); margin-top: 15px; transition: transform 0.2s;"
                    onmouseover="this.style.transform='scale(0.97)'" 
@@ -238,7 +344,6 @@ function setupMapNavigation() {
             </div>
         `;
         
-        // ยัดแผนที่และปุ่มลงไปในพื้นที่ว่าง
         mapContainer.innerHTML = embedHtml;
     }
 }
@@ -258,14 +363,11 @@ function initAllCustomScripts() {
 // ส่วนที่ 5: จัดระเบียบที่อยู่และข้อมูลติดต่อใน Footer
 // =========================================================
 function upgradeFooterAddress() {
-    // พุ่งเป้าไปที่กล่องข้อความที่อยู่เดิม (h2.title) ใน Footer ฝั่งซ้าย
     var addressTitle = document.querySelector('.group-footer.left .title-footer h2.title');
     
-    // ถ้าเจอ และยังไม่ได้ปรับแต่ง
     if (addressTitle && !addressTitle.classList.contains('address-upgraded')) {
         addressTitle.classList.add('address-upgraded');
         
-        // เขียนทับด้วย HTML ใหม่ (ชิดขวา และย้ายไอคอนไปไว้ด้านหลังข้อความ)
         addressTitle.innerHTML = `
             <div style="text-align: right; color: #ffffff; line-height: 1.8; margin-bottom: 25px;">
                 <strong style="font-size: 2.5rem; color: #fbbf24; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">สำนักงานเขตคลองเตย</strong><br>
@@ -294,16 +396,12 @@ function upgradeFooterAddress() {
     }
 }
 
-// รอให้โครงสร้างเว็บโหลดเสร็จก่อน ถึงจะเริ่มทำงานเพื่อป้องกัน Error
 document.addEventListener("DOMContentLoaded", function() {
     initAllCustomScripts();
-    
-    // หน่วงเวลารันซ้ำเผื่อเน็ตช้าหรือเว็บหลักโหลดสคริปต์อื่นมาทับ
     setTimeout(initAllCustomScripts, 1000);
     setTimeout(initAllCustomScripts, 3000);
 });
 
-// กันเหนียวอีกชั้น รันอีกรอบตอนเว็บโหลดภาพเสร็จสมบูรณ์
 window.addEventListener("load", function() {
     initAllCustomScripts();
 });
