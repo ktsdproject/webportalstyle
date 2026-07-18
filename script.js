@@ -354,10 +354,11 @@ function setupMapNavigation() {
 }
 
 // =========================================================
-// แปลงโฉมข้อมูลสาธารณะ (Open Data / OIT) 
+// ⭐ ส่วนที่ 5: แปลงโฉมข้อมูลสาธารณะ (Open Data / OIT) 
+// (อัปเดต: มือถือ 2 คอลัมน์, เอาวันที่ออก, แก้รูปภาพแหว่ง)
 // =========================================================
 function upgradeOitSection() {
-    // 1. ฝัง CSS เฉพาะกิจสำหรับกล่อง OIT นี้ลงไปในหน้าเว็บ
+    // 1. ฝัง CSS เฉพาะกิจสำหรับกล่อง OIT
     if (!document.getElementById('oit-custom-style')) {
         var style = document.createElement('style');
         style.id = 'oit-custom-style';
@@ -365,13 +366,16 @@ function upgradeOitSection() {
             .oit-grid {
                 display: grid;
                 gap: 15px;
-                grid-template-columns: repeat(2, 1fr); /* มือถือบังคับ 2 คอลัมน์เสมอ */
+                grid-template-columns: repeat(2, 1fr); /* มือถือ 2 คอลัมน์ */
                 margin-top: 15px;
             }
             .oit-card-img {
                 width: 100%;
-                height: 110px; /* ลดความสูงรูปลงนิดนึงบนมือถือให้พอดีจอ */
-                object-fit: cover;
+                height: 110px; 
+                object-fit: contain; /* ให้รูปโชว์เต็มใบไม่แหว่ง */
+                background-color: #f8f9fa; /* พื้นหลังสีเทาอ่อน */
+                padding: 10px;
+                border-bottom: 1px solid #eee;
             }
             .oit-card-title {
                 color: #333;
@@ -379,17 +383,17 @@ function upgradeOitSection() {
                 font-weight: 500;
                 line-height: 1.4;
                 display: -webkit-box;
-                -webkit-line-clamp: 3; /* ตัดข้อความที่ยาวเกิน 3 บรรทัด */
+                -webkit-line-clamp: 3; 
                 -webkit-box-orient: vertical;
                 overflow: hidden;
             }
-            /* สำหรับจอคอมพิวเตอร์ (จอใหญ่กว่า 768px) */
+            /* สำหรับจอคอมพิวเตอร์ */
             @media (min-width: 768px) {
                 .oit-grid {
-                    grid-template-columns: repeat(4, 1fr); /* คอมพิวเตอร์ 4 คอลัมน์ */
+                    grid-template-columns: repeat(4, 1fr); /* คอม 4 คอลัมน์ */
                 }
                 .oit-card-img {
-                    height: 150px; /* คอมพิวเตอร์รูปสูงปกติ */
+                    height: 150px; 
                 }
                 .oit-card-title {
                     font-size: 1rem;
@@ -415,29 +419,25 @@ function upgradeOitSection() {
                 var title = linkEl.innerText.trim().replace(/^-\s*/, '');
                 var href = linkEl.href;
 
-                var dateEl = row.querySelector('.date span');
-                var dateText = dateEl ? dateEl.innerText.replace('ข่าววันที่ :', '').replace(/&nbsp;/g, ' ').trim() : '';
-
+                // แก้ไขรูปภาพที่พัง ให้ดึงรูปโลโก้ กทม. ในระบบมาใช้แทน
                 var imgEl = row.querySelector('.img-news img');
                 var imgSrc = imgEl ? imgEl.src : '';
                 if (!imgSrc || imgSrc.includes('logo_default.jpg')) {
-                    imgSrc = 'https://via.placeholder.com/600x400/003366/FFFFFF?text=Open+Data';
+                    imgSrc = '/user_files/45/20594235356a47711c2fd409.91301971.png'; // โลโก้เขตคลองเตย
                 }
 
                 harvestedItems.push({
                     title: title,
                     link: href,
-                    imgSrc: imgSrc,
-                    date: dateText
+                    imgSrc: imgSrc
                 });
 
-                // ซ่อนบรรทัดเก่า ไม่ลบทิ้ง ไม่แตะปุ่มแอดมิน
+                // ซ่อนของเก่า
                 row.style.display = 'none'; 
             });
 
             if (harvestedItems.length > 0) {
                 var mainContentContainer = oitSection.querySelector('.main-content');
-                // เปลี่ยนมาใช้คลาส oit-grid ที่เราเขียน CSS บังคับคอลัมน์ไว้
                 var cardsGridHtml = '<div class="oit-grid">';
                 
                 harvestedItems.forEach(function(item) {
@@ -445,11 +445,9 @@ function upgradeOitSection() {
                         <div style="position:relative; display:flex; flex-direction:column; height: 100%;">
                             <a href="${item.link}" class="fb-card" style="flex-grow:1; text-decoration:none !important; display:flex; flex-direction:column; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 4px 15px rgba(0,0,0,0.05); border:1px solid #eee;">
                                 <img src="${item.imgSrc}" class="oit-card-img" alt="OIT Cover">
-                                <div style="padding:12px; display:flex; flex-direction:column; flex-grow:1;">
-                                    <div style="color:#65676B; font-size:0.8rem; margin-bottom:6px; font-weight:600;">
-                                        <i class="far fa-clock"></i> ${item.date}
-                                    </div>
-                                    <div class="oit-card-title">
+                                <div style="padding:15px; display:flex; flex-direction:column; justify-content: center; flex-grow:1;">
+                                    <!-- ลบส่วนแสดงเวลาออกไปแล้ว -->
+                                    <div class="oit-card-title" style="text-align: center;">
                                         ${item.title}
                                     </div>
                                 </div>
