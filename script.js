@@ -354,81 +354,88 @@ function setupMapNavigation() {
 }
 
 // =========================================================
-//  แปลงโฉมข้อมูลสาธารณะ (Open Data / OIT) (แก้ไข: ไม่แตะ Admin)
+// แปลงโฉมข้อมูลสาธารณะ (Open Data) 
 // =========================================================
 function upgradeOitSection() {
-    // 1. เล็งเป้าหมายไปที่กล่องข้อมูลสาธารณะ โดยระบุ ID ที่ตรงเป๊ะ
-    var oitSection = document.querySelector('.section-content[data-id="1_4262"]');
-    
-    // หากไม่เจอกล่อง หรือเคยแปลงร่างไปแล้ว ให้ข้ามการทำงาน
-    if (!oitSection || oitSection.classList.contains('oit-upgraded')) return;
-    oitSection.classList.add('oit-upgraded');
+    // ใช้ MutationObserver เพื่อเฝ้ารอจนกว่ากล่อง 1_4262 จะโผล่ขึ้นมาบนจอ
+    var observer = new MutationObserver(function(mutations, me) {
+        var oitSection = document.querySelector('.section-content[data-id="1_4262"]');
+        
+        if (oitSection && !oitSection.classList.contains('oit-upgraded')) {
+            // เจอแล้ว! บอกให้จำไว้ว่าทำแล้ว จะได้ไม่ทำซ้ำ
+            oitSection.classList.add('oit-upgraded');
+            
+            // หยุดเฝ้ารอ
+            me.disconnect(); 
 
-    var harvestedItems = [];
+            var harvestedItems = [];
 
-    // 2. กวาดข้อมูลจากแถวที่มีรูปและข้อความ (row no-gutters) โดยไม่ต้องสนใจปุ่ม Admin
-    var rows = oitSection.querySelectorAll('.main-content .row.no-gutters');
+            // หาเฉพาะบรรทัดข่าว (row no-gutters) ที่อยู่ในกล่องเนื้อหาหลัก
+            var rows = oitSection.querySelectorAll('.main-content .row.no-gutters');
 
-    rows.forEach(function(row) {
-        // ก. เก็บลิงก์และชื่อเรื่อง
-        var linkEl = row.querySelector('.desc-news a');
-        if (!linkEl) return;
-        var title = linkEl.innerText.trim().replace(/^-\s*/, ''); // เอาเครื่องหมาย - ออก
-        var href = linkEl.href; // ลิงก์เดิมเป๊ะๆ เวลากดจะเข้าไปหน้าปกติ
+            rows.forEach(function(row) {
+                // เก็บลิงก์และชื่อเรื่อง
+                var linkEl = row.querySelector('.desc-news a');
+                if (!linkEl) return;
+                var title = linkEl.innerText.trim().replace(/^-\s*/, '');
+                var href = linkEl.href;
 
-        // ข. เก็บวันที่
-        var dateEl = row.querySelector('.date span');
-        var dateText = dateEl ? dateEl.innerText.replace('ข่าววันที่ :', '').replace(/&nbsp;/g, ' ').trim() : '';
+                // เก็บวันที่
+                var dateEl = row.querySelector('.date span');
+                var dateText = dateEl ? dateEl.innerText.replace('ข่าววันที่ :', '').replace(/&nbsp;/g, ' ').trim() : '';
 
-        // ค. เก็บรูปภาพ (ถ้าเป็นโลโก้เดิมๆ ให้เปลี่ยนเป็นรูปพรีวิวให้ดูทันสมัย)
-        var imgEl = row.querySelector('.img-news img');
-        var imgSrc = imgEl ? imgEl.src : '';
-        if (!imgSrc || imgSrc.includes('logo_default.jpg')) {
-            // ภาพ Placeholder สำหรับ Open Data
-            imgSrc = 'https://via.placeholder.com/600x400/003366/FFFFFF?text=Open+Data';
+                // เก็บรูปภาพ
+                var imgEl = row.querySelector('.img-news img');
+                var imgSrc = imgEl ? imgEl.src : '';
+                if (!imgSrc || imgSrc.includes('logo_default.jpg')) {
+                    imgSrc = 'https://via.placeholder.com/600x400/003366/FFFFFF?text=Open+Data';
+                }
+
+                harvestedItems.push({
+                    title: title,
+                    link: href,
+                    imgSrc: imgSrc,
+                    date: dateText
+                });
+
+                // สำคัญมาก: ซ่อนเนื้อหาเดิมไว้ (ไม่ลบ) เพื่อไม่ให้สคริปต์หลังบ้านของ กทม. พัง
+                row.style.display = 'none'; 
+            });
+
+            // วาดการ์ดใหม่ต่อท้าย
+            if (harvestedItems.length > 0) {
+                var mainContentContainer = oitSection.querySelector('.main-content');
+                var cardsGridHtml = '<div class="fb-grid" style="margin-top: 15px;">';
+                
+                harvestedItems.forEach(function(item) {
+                    cardsGridHtml += `
+                        <div style="position:relative; display:flex; flex-direction:column; height: 100%;">
+                            <a href="${item.link}" class="fb-card" style="flex-grow:1; text-decoration:none !important; display:flex; flex-direction:column; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 4px 15px rgba(0,0,0,0.05); border:1px solid #eee;">
+                                <img src="${item.imgSrc}" style="width:100%; height:160px; object-fit:cover;" alt="OIT Cover">
+                                <div style="padding:15px; display:flex; flex-direction:column; flex-grow:1;">
+                                    <div style="color:#65676B; font-size:0.85rem; margin-bottom:8px; font-weight:600;">
+                                        <i class="far fa-clock"></i> ${item.date}
+                                    </div>
+                                    <div style="color:#333; font-size:1rem; font-weight:500; line-height:1.5;">
+                                        ${item.title}
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    `;
+                });
+                
+                cardsGridHtml += '</div>';
+                mainContentContainer.insertAdjacentHTML('beforeend', cardsGridHtml);
+            }
         }
-
-        harvestedItems.push({
-            title: title,
-            link: href,
-            imgSrc: imgSrc,
-            date: dateText
-        });
-
-        // ซ่อนบรรทัดข่าวเก่า (row no-gutters) แต่ไม่ลบ เพื่อรักษาโครงสร้างของ กทม. ไว้
-        row.style.display = 'none'; 
     });
 
-    // 3. วาดการ์ดใหม่ต่อท้ายเนื้อหาเดิม
-    if (harvestedItems.length > 0) {
-        var mainContentContainer = oitSection.querySelector('.main-content');
-        
-        // สร้าง Grid ครอบไว้
-        var cardsGridHtml = '<div class="fb-grid" style="margin-top: 15px;">';
-        
-        harvestedItems.forEach(function(item) {
-            cardsGridHtml += `
-                <div style="position:relative; display:flex; flex-direction:column; height: 100%;">
-                    <a href="${item.link}" class="fb-card" style="flex-grow:1; text-decoration:none !important; display:flex; flex-direction:column; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 4px 15px rgba(0,0,0,0.05); border:1px solid #eee;">
-                        <img src="${item.imgSrc}" style="width:100%; height:160px; object-fit:cover;" alt="OIT Cover">
-                        <div style="padding:15px; display:flex; flex-direction:column; flex-grow:1;">
-                            <div style="color:#65676B; font-size:0.85rem; margin-bottom:8px; font-weight:600;">
-                                <i class="far fa-clock"></i> ${item.date}
-                            </div>
-                            <div style="color:#333; font-size:1rem; font-weight:500; line-height:1.5;">
-                                ${item.title}
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            `;
-        });
-        
-        cardsGridHtml += '</div>';
-        
-        // แทรกลงไปใต้บรรทัดข่าวเดิม (บรรทัดเก่าซ่อนไว้แล้วด้วย display:none)
-        mainContentContainer.insertAdjacentHTML('beforeend', cardsGridHtml);
-    }
+    // เริ่มการเฝ้ารอตั้งแต่หน้าเว็บเปิด (เฝ้าดูความเปลี่ยนแปลงของ body)
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
 }
 
 // =========================================================
@@ -440,7 +447,21 @@ function initAllCustomScripts() {
     replaceCalendarWithModernCards();
     upgradeFooterAddress();
     setupMapNavigation();
+    
+    // 👇 เพิ่มบรรทัดนี้ เพื่อสั่งให้แปลงโฉมกล่อง OIT!
+    upgradeOitSection(); 
 }
+
+// โค้ดด้านล่างนี้ปล่อยไว้เหมือนเดิมครับ (เป็นการดักจังหวะการรันสคริปต์)
+document.addEventListener("DOMContentLoaded", function() {
+    initAllCustomScripts();
+    setTimeout(initAllCustomScripts, 1000);
+    setTimeout(initAllCustomScripts, 3000);
+});
+
+window.addEventListener("load", function() {
+    initAllCustomScripts();
+});
 
 // =========================================================
 // จัดระเบียบที่อยู่และข้อมูลติดต่อใน Footer
