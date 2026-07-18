@@ -354,55 +354,9 @@ function setupMapNavigation() {
 }
 
 // =========================================================
-// ⭐ ส่วนที่ 5: แปลงโฉมข้อมูลสาธารณะ (Open Data / OIT) 
-// (อัปเดต: มือถือ 2 คอลัมน์, เอาวันที่ออก, แก้รูปภาพแหว่ง)
+// ⭐ ส่วนที่ 5: แปลงโฉมข้อมูลสาธารณะ (Open Data / OIT)
 // =========================================================
 function upgradeOitSection() {
-    // 1. ฝัง CSS เฉพาะกิจสำหรับกล่อง OIT
-    if (!document.getElementById('oit-custom-style')) {
-        var style = document.createElement('style');
-        style.id = 'oit-custom-style';
-        style.innerHTML = `
-            .oit-grid {
-                display: grid;
-                gap: 15px;
-                grid-template-columns: repeat(2, 1fr); /* มือถือ 2 คอลัมน์ */
-                margin-top: 15px;
-            }
-            .oit-card-img {
-                width: 100%;
-                height: 110px; 
-                object-fit: contain; /* ให้รูปโชว์เต็มใบไม่แหว่ง */
-                background-color: #f8f9fa; /* พื้นหลังสีเทาอ่อน */
-                padding: 10px;
-                border-bottom: 1px solid #eee;
-            }
-            .oit-card-title {
-                color: #333;
-                font-size: 0.85rem;
-                font-weight: 500;
-                line-height: 1.4;
-                display: -webkit-box;
-                -webkit-line-clamp: 3; 
-                -webkit-box-orient: vertical;
-                overflow: hidden;
-            }
-            /* สำหรับจอคอมพิวเตอร์ */
-            @media (min-width: 768px) {
-                .oit-grid {
-                    grid-template-columns: repeat(4, 1fr); /* คอม 4 คอลัมน์ */
-                }
-                .oit-card-img {
-                    height: 150px; 
-                }
-                .oit-card-title {
-                    font-size: 1rem;
-                }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-
     var observer = new MutationObserver(function(mutations, me) {
         var oitSection = document.querySelector('.section-content[data-id="1_4262"]');
         
@@ -416,14 +370,15 @@ function upgradeOitSection() {
             rows.forEach(function(row) {
                 var linkEl = row.querySelector('.desc-news a');
                 if (!linkEl) return;
+                
                 var title = linkEl.innerText.trim().replace(/^-\s*/, '');
                 var href = linkEl.href;
 
-                // แก้ไขรูปภาพที่พัง ให้ดึงรูปโลโก้ กทม. ในระบบมาใช้แทน
+                // ตรวจสอบรูปภาพ ถ้าเป็นรูป Default ให้เปลี่ยนไปใช้โลโก้เขตคลองเตย
                 var imgEl = row.querySelector('.img-news img');
                 var imgSrc = imgEl ? imgEl.src : '';
                 if (!imgSrc || imgSrc.includes('logo_default.jpg')) {
-                    imgSrc = '/user_files/45/20594235356a47711c2fd409.91301971.png'; // โลโก้เขตคลองเตย
+                    imgSrc = '/user_files/45/20594235356a47711c2fd409.91301971.png'; 
                 }
 
                 harvestedItems.push({
@@ -432,10 +387,11 @@ function upgradeOitSection() {
                     imgSrc: imgSrc
                 });
 
-                // ซ่อนของเก่า
+                // ซ่อนบรรทัดเก่าไว้ เพื่อไม่ให้กระทบระบบหลังบ้าน
                 row.style.display = 'none'; 
             });
 
+            // สร้าง Grid การ์ดใหม่
             if (harvestedItems.length > 0) {
                 var mainContentContainer = oitSection.querySelector('.main-content');
                 var cardsGridHtml = '<div class="oit-grid">';
@@ -446,8 +402,7 @@ function upgradeOitSection() {
                             <a href="${item.link}" class="fb-card" style="flex-grow:1; text-decoration:none !important; display:flex; flex-direction:column; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 4px 15px rgba(0,0,0,0.05); border:1px solid #eee;">
                                 <img src="${item.imgSrc}" class="oit-card-img" alt="OIT Cover">
                                 <div style="padding:15px; display:flex; flex-direction:column; justify-content: center; flex-grow:1;">
-                                    <!-- ลบส่วนแสดงเวลาออกไปแล้ว -->
-                                    <div class="oit-card-title" style="text-align: center;">
+                                    <div class="oit-card-title">
                                         ${item.title}
                                     </div>
                                 </div>
