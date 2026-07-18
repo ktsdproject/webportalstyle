@@ -226,3 +226,47 @@ code ไม่ได้ยากครับ css ง่ายๆ ใครๆก
     background: #166fe5;
     transform: translateY(-2px);
 }
+
+/* ========================================================= */
+/* ส่วนการปรับแต่งหน้าตา การ์ดข้อมูลสาธารณะ (Open Data / OIT) */
+/* ========================================================= */
+.oit-grid {
+    display: grid;
+    gap: 15px;
+    grid-template-columns: repeat(2, 1fr); /* บังคับมือถือ 2 คอลัมน์ */
+    margin-top: 15px;
+}
+
+.oit-card-img {
+    width: 100%;
+    height: 110px; 
+    object-fit: contain; /* ให้โลโก้โชว์เต็มใบ ไม่โดนตัด */
+    background-color: #f8f9fa; /* พื้นเทาอ่อนช่วยให้โลโก้ดูเด่น */
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.oit-card-title {
+    color: #333;
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1.4;
+    text-align: center; /* จัดตัวหนังสือให้อยู่กึ่งกลาง */
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* ตัดข้อความที่ยาวเกิน 3 บรรทัด */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* สำหรับจอคอมพิวเตอร์ (จอใหญ่กว่า 768px) */
+@media (min-width: 768px) {
+    .oit-grid {
+        grid-template-columns: repeat(4, 1fr); /* คอมพิวเตอร์ 4 คอลัมน์ */
+    }
+    .oit-card-img {
+        height: 150px; 
+    }
+    .oit-card-title {
+        font-size: 1rem;
+    }
+}
