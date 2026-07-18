@@ -354,37 +354,70 @@ function setupMapNavigation() {
 }
 
 // =========================================================
-// แปลงโฉมข้อมูลสาธารณะ (Open Data) 
+// แปลงโฉมข้อมูลสาธารณะ (Open Data / OIT) 
 // =========================================================
 function upgradeOitSection() {
-    // ใช้ MutationObserver เพื่อเฝ้ารอจนกว่ากล่อง 1_4262 จะโผล่ขึ้นมาบนจอ
+    // 1. ฝัง CSS เฉพาะกิจสำหรับกล่อง OIT นี้ลงไปในหน้าเว็บ
+    if (!document.getElementById('oit-custom-style')) {
+        var style = document.createElement('style');
+        style.id = 'oit-custom-style';
+        style.innerHTML = `
+            .oit-grid {
+                display: grid;
+                gap: 15px;
+                grid-template-columns: repeat(2, 1fr); /* มือถือบังคับ 2 คอลัมน์เสมอ */
+                margin-top: 15px;
+            }
+            .oit-card-img {
+                width: 100%;
+                height: 110px; /* ลดความสูงรูปลงนิดนึงบนมือถือให้พอดีจอ */
+                object-fit: cover;
+            }
+            .oit-card-title {
+                color: #333;
+                font-size: 0.85rem;
+                font-weight: 500;
+                line-height: 1.4;
+                display: -webkit-box;
+                -webkit-line-clamp: 3; /* ตัดข้อความที่ยาวเกิน 3 บรรทัด */
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+            /* สำหรับจอคอมพิวเตอร์ (จอใหญ่กว่า 768px) */
+            @media (min-width: 768px) {
+                .oit-grid {
+                    grid-template-columns: repeat(4, 1fr); /* คอมพิวเตอร์ 4 คอลัมน์ */
+                }
+                .oit-card-img {
+                    height: 150px; /* คอมพิวเตอร์รูปสูงปกติ */
+                }
+                .oit-card-title {
+                    font-size: 1rem;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
     var observer = new MutationObserver(function(mutations, me) {
         var oitSection = document.querySelector('.section-content[data-id="1_4262"]');
         
         if (oitSection && !oitSection.classList.contains('oit-upgraded')) {
-            // เจอแล้ว! บอกให้จำไว้ว่าทำแล้ว จะได้ไม่ทำซ้ำ
             oitSection.classList.add('oit-upgraded');
-            
-            // หยุดเฝ้ารอ
             me.disconnect(); 
 
             var harvestedItems = [];
-
-            // หาเฉพาะบรรทัดข่าว (row no-gutters) ที่อยู่ในกล่องเนื้อหาหลัก
             var rows = oitSection.querySelectorAll('.main-content .row.no-gutters');
 
             rows.forEach(function(row) {
-                // เก็บลิงก์และชื่อเรื่อง
                 var linkEl = row.querySelector('.desc-news a');
                 if (!linkEl) return;
                 var title = linkEl.innerText.trim().replace(/^-\s*/, '');
                 var href = linkEl.href;
 
-                // เก็บวันที่
                 var dateEl = row.querySelector('.date span');
                 var dateText = dateEl ? dateEl.innerText.replace('ข่าววันที่ :', '').replace(/&nbsp;/g, ' ').trim() : '';
 
-                // เก็บรูปภาพ
                 var imgEl = row.querySelector('.img-news img');
                 var imgSrc = imgEl ? imgEl.src : '';
                 if (!imgSrc || imgSrc.includes('logo_default.jpg')) {
@@ -398,25 +431,25 @@ function upgradeOitSection() {
                     date: dateText
                 });
 
-                // สำคัญมาก: ซ่อนเนื้อหาเดิมไว้ (ไม่ลบ) เพื่อไม่ให้สคริปต์หลังบ้านของ กทม. พัง
+                // ซ่อนบรรทัดเก่า ไม่ลบทิ้ง ไม่แตะปุ่มแอดมิน
                 row.style.display = 'none'; 
             });
 
-            // วาดการ์ดใหม่ต่อท้าย
             if (harvestedItems.length > 0) {
                 var mainContentContainer = oitSection.querySelector('.main-content');
-                var cardsGridHtml = '<div class="fb-grid" style="margin-top: 15px;">';
+                // เปลี่ยนมาใช้คลาส oit-grid ที่เราเขียน CSS บังคับคอลัมน์ไว้
+                var cardsGridHtml = '<div class="oit-grid">';
                 
                 harvestedItems.forEach(function(item) {
                     cardsGridHtml += `
                         <div style="position:relative; display:flex; flex-direction:column; height: 100%;">
                             <a href="${item.link}" class="fb-card" style="flex-grow:1; text-decoration:none !important; display:flex; flex-direction:column; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 4px 15px rgba(0,0,0,0.05); border:1px solid #eee;">
-                                <img src="${item.imgSrc}" style="width:100%; height:160px; object-fit:cover;" alt="OIT Cover">
-                                <div style="padding:15px; display:flex; flex-direction:column; flex-grow:1;">
-                                    <div style="color:#65676B; font-size:0.85rem; margin-bottom:8px; font-weight:600;">
+                                <img src="${item.imgSrc}" class="oit-card-img" alt="OIT Cover">
+                                <div style="padding:12px; display:flex; flex-direction:column; flex-grow:1;">
+                                    <div style="color:#65676B; font-size:0.8rem; margin-bottom:6px; font-weight:600;">
                                         <i class="far fa-clock"></i> ${item.date}
                                     </div>
-                                    <div style="color:#333; font-size:1rem; font-weight:500; line-height:1.5;">
+                                    <div class="oit-card-title">
                                         ${item.title}
                                     </div>
                                 </div>
@@ -431,13 +464,8 @@ function upgradeOitSection() {
         }
     });
 
-    // เริ่มการเฝ้ารอตั้งแต่หน้าเว็บเปิด (เฝ้าดูความเปลี่ยนแปลงของ body)
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
+    observer.observe(document.body, { childList: true, subtree: true });
 }
-
 // =========================================================
 // ตัวสั่งรันฟังก์ชันทั้งหมด (รอ HTML โหลดเสร็จ)
 // =========================================================
