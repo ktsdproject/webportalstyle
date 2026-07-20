@@ -354,7 +354,7 @@ function setupMapNavigation() {
 }
 
 // =========================================================
-// ⭐ ส่วนที่ 5: แปลงโฉมข้อมูลสาธารณะ (Open Data / OIT)
+// แปลงโฉมข้อมูลสาธารณะ (Open Data / OIT)
 // =========================================================
 function upgradeOitSection() {
     var observer = new MutationObserver(function(mutations, me) {
@@ -420,6 +420,33 @@ function upgradeOitSection() {
     observer.observe(document.body, { childList: true, subtree: true });
 }
 // =========================================================
+// รซ่อน Banner เมื่อไม่ได้อยู่หน้าแรก
+// =========================================================
+function hideBannerOnSubpages() {
+    // 1. เช็ก URL ปัจจุบัน
+    var currentUrl = window.location.href;
+    
+    // 2. เช็กว่าใช่หน้าหลักหรือไม่ 
+    // (หน้าหลักปกติจะเป็น /khlongtoei หรือ /khlongtoei/ หรือ /khlongtoei/page/main/6/หน้าแรก)
+    var isHomePage = false;
+    if (currentUrl.endsWith('/khlongtoei') || 
+        currentUrl.endsWith('/khlongtoei/') || 
+        currentUrl.includes('/page/main/6/หน้าแรก')) {
+        isHomePage = true;
+    }
+
+    // 3. ถ้า "ไม่ใช่" หน้าหลัก ให้หาและซ่อนกล่องแบนเนอร์
+    if (!isHomePage) {
+        // หาแบนเนอร์ที่มีคลาส .banner-wrapper.onlyOne
+        var bannerWrapper = document.querySelector('.banner-wrapper.onlyOne');
+        
+        // ถ้าเจอกล่องแบนเนอร์ ให้จับซ่อนทันที
+        if (bannerWrapper) {
+            bannerWrapper.style.display = 'none';
+        }
+    }
+}
+// =========================================================
 // ตัวสั่งรันฟังก์ชันทั้งหมด (รอ HTML โหลดเสร็จ)
 // =========================================================
 function initAllCustomScripts() {
@@ -428,9 +455,8 @@ function initAllCustomScripts() {
     replaceCalendarWithModernCards();
     upgradeFooterAddress();
     setupMapNavigation();
-    
-    // 👇 เพิ่มบรรทัดนี้ เพื่อสั่งให้แปลงโฉมกล่อง OIT!
     upgradeOitSection(); 
+    hideBannerOnSubpages();
 }
 
 // โค้ดด้านล่างนี้ปล่อยไว้เหมือนเดิมครับ (เป็นการดักจังหวะการรันสคริปต์)
