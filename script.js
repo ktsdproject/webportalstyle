@@ -1,11 +1,10 @@
 // =========================================================
-// ส่วนที่ 1: ระบบดึงข่าวสารจาก Facebook ลงมาเป็นการ์ด
+// ดึงข่าวสารจาก Facebook ลงมาเป็นการ์ด
 // =========================================================
 
-// ตัวแปร Global สำหรับจัดการระบบสไลด์รูปใน Popup และเก็บข้อมูลรูปภาพของทุกโพสต์
 window.fbModalImages = [];
 window.fbModalCurrentIndex = 0;
-window.fbPostData = {}; // <--- เพิ่มตัวนี้เพื่อเก็บ Array รูปลดปัญหา HTML พัง
+window.fbPostData = {};
 
 function replaceCalendarWithModernCards() {
     var calWrapper = document.getElementById('calendar-wrapper');
@@ -55,7 +54,6 @@ function replaceCalendarWithModernCards() {
     }
 }
 
-// สร้างกล่อง Popup สำหรับดูรูปจาก Facebook 
 function createFbModal() {
     if (document.getElementById('fb-custom-modal')) return;
     
@@ -97,7 +95,7 @@ function createFbModal() {
 }
 
 // ---------------------------------------------------------
-// ระบบฟังก์ชันเลื่อนรูปภาพ (Slider Functions)
+// ฟังก์ชันเลื่อนรูปภาพ
 // ---------------------------------------------------------
 window.updateFbModalImage = function() {
     const imgEl = document.getElementById('fb-modal-img');
@@ -141,7 +139,7 @@ window.nextFbImage = function(e) {
 };
 
 // ---------------------------------------------------------
-// ฟังก์ชันเปิด/ปิด Popup (รับข้อมูลจากหน่วยความจำแทน HTML)
+// ฟังก์ชันเปิด/ปิด Popup
 // ---------------------------------------------------------
 window.openFbModal = function(postId, encodedText, link, date) {
     // ดึง Array รูปภาพจากหน่วยความจำด้วย postId
@@ -165,7 +163,7 @@ window.closeFbModal = function(e) {
 };
 
 // =========================================================
-// ฟังก์ชันวาดการ์ด Facebook ลงในหน้าเว็บ
+// วาดการ์ด Facebook ลงในหน้าเว็บ
 // =========================================================
 function renderCards(posts) {
     var container = document.getElementById('fb-card-container');
@@ -178,10 +176,9 @@ function renderCards(posts) {
         return;
     }
 
-    // 🌟 เพิ่มคำสั่งเรียงลำดับโพสต์จาก "ใหม่ล่าสุด" ไป "เก่าสุด" เสมอ
     posts.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    window.fbPostData = {}; // ล้างหน่วยความจำภาพ
+    window.fbPostData = {};
 
     var html = '';
     posts.forEach(function(post) {
@@ -203,7 +200,7 @@ function renderCards(posts) {
         var encodedText = encodeURIComponent(textSnippet);
         
         // ----------------------------------------------------
-        // แกะรูปภาพ และ กรอง URL ที่ซ้ำกันจาก Facebook (ตัด Query Params ทิ้ง)
+        // แกะรูปภาพ และ กรอง URL ที่ซ้ำกันจาก Facebook
         // ----------------------------------------------------
         var imgArray = ['https://via.placeholder.com/600x400/003366/FFFFFF?text=Khlong+Toei+News'];
         if (post.image) {
@@ -215,25 +212,22 @@ function renderCards(posts) {
                     var seenBases = new Set();
                     
                     parsedImg.forEach(function(url) {
-                        // แยกเอาเฉพาะที่อยู่ไฟล์หลัก (ตัดเครื่องหมาย ? และตัวอักษรด้านหลังทิ้งทั้งหมด)
                         var baseUrl = url.split('?')[0]; 
                         
                         if (!seenBases.has(baseUrl)) {
                             seenBases.add(baseUrl);
-                            uniqueImages.push(url); // เก็บ URL ฉบับเต็มไว้ใช้งาน
+                            uniqueImages.push(url);
                         }
                     });
-                    imgArray = uniqueImages; // ตอนนี้รูปจะไม่ซ้ำกันแล้ว!
+                    imgArray = uniqueImages;
                 }
             } catch (e) {
                 imgArray = [post.image]; 
             }
         }
 
-        // เซฟ Array รูปลงหน่วยความจำ แยกตามรหัสโพสต์
         window.fbPostData[post.id] = imgArray;
         
-        // สร้าง HTML รูปหน้าปกการ์ด
         var coverHtml = '';
         if (imgArray.length === 1) {
             coverHtml = `<img src="${imgArray[0]}" class="fb-img" alt="cover" style="width: 100%; height: 160px; object-fit: cover; display: block;">`;
@@ -267,7 +261,7 @@ function renderCards(posts) {
 }
 
 // =========================================================
-// ส่วนที่ 2: ปรับแต่ง UI อื่นๆ (Sidebar และ Social Icons)
+// ปรับแต่ง UI อื่นๆ (Sidebar และ Social Icons)
 // =========================================================
 
 function upgradeFloatingSidebar() {
@@ -323,7 +317,7 @@ function upgradeFooterSocial() {
 }
 
 // =========================================================
-// ระบบฝังแผนที่ (Embed Map) ใน Footer
+// ฝังแผนที่ (Embed Map) ใน Footer
 // =========================================================
 function setupMapNavigation() {
     var mapContainer = document.querySelector('.group-footer.left .group-content-footer .text-content');
@@ -374,7 +368,6 @@ function upgradeOitSection() {
                 var title = linkEl.innerText.trim().replace(/^-\s*/, '');
                 var href = linkEl.href;
 
-                // ตรวจสอบรูปภาพ ถ้าเป็นรูป Default ให้เปลี่ยนไปใช้โลโก้เขตคลองเตย
                 var imgEl = row.querySelector('.img-news img');
                 var imgSrc = imgEl ? imgEl.src : '';
                 if (!imgSrc || imgSrc.includes('logo_default.jpg')) {
@@ -387,11 +380,9 @@ function upgradeOitSection() {
                     imgSrc: imgSrc
                 });
 
-                // ซ่อนบรรทัดเก่าไว้ เพื่อไม่ให้กระทบระบบหลังบ้าน
                 row.style.display = 'none'; 
             });
 
-            // สร้าง Grid การ์ดใหม่
             if (harvestedItems.length > 0) {
                 var mainContentContainer = oitSection.querySelector('.main-content');
                 var cardsGridHtml = '<div class="oit-grid">';
@@ -420,14 +411,11 @@ function upgradeOitSection() {
     observer.observe(document.body, { childList: true, subtree: true });
 }
 // =========================================================
-// รซ่อน Banner เมื่อไม่ได้อยู่หน้าแรก
+// ซ่อน Banner เมื่อไม่ได้อยู่หน้าแรก
 // =========================================================
 function hideBannerOnSubpages() {
-    // 1. เช็ก URL ปัจจุบัน
     var currentUrl = window.location.href;
     
-    // 2. เช็กว่าใช่หน้าหลักหรือไม่ 
-    // (หน้าหลักปกติจะเป็น /khlongtoei หรือ /khlongtoei/ หรือ /khlongtoei/page/main/6/หน้าแรก)
     var isHomePage = false;
     if (currentUrl.endsWith('/khlongtoei') || 
         currentUrl.endsWith('/khlongtoei/') || 
@@ -435,19 +423,16 @@ function hideBannerOnSubpages() {
         isHomePage = true;
     }
 
-    // 3. ถ้า "ไม่ใช่" หน้าหลัก ให้หาและซ่อนกล่องแบนเนอร์
     if (!isHomePage) {
-        // หาแบนเนอร์ที่มีคลาส .banner-wrapper.onlyOne
         var bannerWrapper = document.querySelector('.banner-wrapper.onlyOne');
         
-        // ถ้าเจอกล่องแบนเนอร์ ให้จับซ่อนทันที
         if (bannerWrapper) {
             bannerWrapper.style.display = 'none';
         }
     }
 }
 // =========================================================
-// ตัวสั่งรันฟังก์ชันทั้งหมด (รอ HTML โหลดเสร็จ)
+// ตัวสั่งรันฟังก์ชันทั้งหมด
 // =========================================================
 function initAllCustomScripts() {
     upgradeFloatingSidebar();
@@ -459,7 +444,6 @@ function initAllCustomScripts() {
     hideBannerOnSubpages();
 }
 
-// โค้ดด้านล่างนี้ปล่อยไว้เหมือนเดิมครับ (เป็นการดักจังหวะการรันสคริปต์)
 document.addEventListener("DOMContentLoaded", function() {
     initAllCustomScripts();
     setTimeout(initAllCustomScripts, 1000);
