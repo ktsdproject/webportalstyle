@@ -200,14 +200,14 @@ function preparePostCardData(post) {
 
     var coverHtml = '';
     if (imgArray.length === 1) {
-        coverHtml = `<img src="${imgArray[0]}" class="fb-img" alt="cover" style="width: 100%; height: 180px; object-fit: cover; display: block;">`;
+        coverHtml = `<img src="${imgArray[0]}" class="fb-img" alt="cover" style="width: 100%; height: 160px; object-fit: cover; display: block;">`;
     } else {
         var moreBadge = imgArray.length > 2 
             ? `<div style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.75); color: #fff; padding: 3px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; z-index: 2; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">+${imgArray.length - 2}</div>` 
             : '';
         
         coverHtml = `
-            <div style="display: flex; height: 180px; width: 100%; overflow: hidden; position: relative;">
+            <div style="display: flex; height: 160px; width: 100%; overflow: hidden; position: relative;">
                 <img src="${imgArray[0]}" style="width: 50%; height: 100%; object-fit: cover; border-right: 2px solid #fff;" alt="cover 1">
                 <img src="${imgArray[1]}" style="width: 50%; height: 100%; object-fit: cover;" alt="cover 2">
                 ${moreBadge}
@@ -367,67 +367,6 @@ function renderCards(posts) {
     
     container.innerHTML = html;
 }
-        
-        // ----------------------------------------------------
-        // แกะรูปภาพ และ กรอง URL ที่ซ้ำกันจาก Facebook
-        // ----------------------------------------------------
-        var imgArray = ['https://via.placeholder.com/600x400/003366/FFFFFF?text=Khlong+Toei+News'];
-        if (post.image) {
-            try {
-                var parsedImg = JSON.parse(post.image);
-                if (Array.isArray(parsedImg) && parsedImg.length > 0) {
-                    
-                    var uniqueImages = [];
-                    var seenBases = new Set();
-                    
-                    parsedImg.forEach(function(url) {
-                        var baseUrl = url.split('?')[0]; 
-                        
-                        if (!seenBases.has(baseUrl)) {
-                            seenBases.add(baseUrl);
-                            uniqueImages.push(url);
-                        }
-                    });
-                    imgArray = uniqueImages;
-                }
-            } catch (e) {
-                imgArray = [post.image]; 
-            }
-        }
-
-        window.fbPostData[post.id] = imgArray;
-        
-        var coverHtml = '';
-        if (imgArray.length === 1) {
-            coverHtml = `<img src="${imgArray[0]}" class="fb-img" alt="cover" style="width: 100%; height: 160px; object-fit: cover; display: block;">`;
-        } else {
-            var moreBadge = imgArray.length > 2 
-                ? `<div style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.75); color: #fff; padding: 3px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; z-index: 2; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">+${imgArray.length - 2}</div>` 
-                : '';
-            
-            coverHtml = `
-                <div style="display: flex; height: 160px; width: 100%; overflow: hidden; position: relative;">
-                    <img src="${imgArray[0]}" style="width: 50%; height: 100%; object-fit: cover; border-right: 2px solid #fff;" alt="cover 1">
-                    <img src="${imgArray[1]}" style="width: 50%; height: 100%; object-fit: cover;" alt="cover 2">
-                    ${moreBadge}
-                </div>
-            `;
-        }
-        
-        // ส่งแค่ post.id เข้าไปในฟังก์ชันเปิด Popup แทนการส่ง URL รูปยาวๆ
-        html += `
-            <div class="fb-card" onclick="openFbModal('${post.id}', '${encodedText}', '${post.link}', '${formattedDate}')">
-                ${coverHtml}
-                <div class="fb-content">
-                    <div class="fb-date"><i class="far fa-clock"></i> ${formattedDate}</div>
-                    <div class="fb-text">${textSnippet}</div>
-                </div>
-            </div>
-        `;
-    });
-    
-    container.innerHTML = html;
-}
 
 // =========================================================
 // ปรับแต่ง UI อื่นๆ (Sidebar และ Social Icons)
@@ -579,6 +518,7 @@ function upgradeOitSection() {
 
     observer.observe(document.body, { childList: true, subtree: true });
 }
+
 // =========================================================
 // ซ่อน Banner เมื่อไม่ได้อยู่หน้าแรก
 // =========================================================
@@ -600,28 +540,6 @@ function hideBannerOnSubpages() {
         }
     }
 }
-// =========================================================
-// ตัวสั่งรันฟังก์ชันทั้งหมด---
-// =========================================================
-function initAllCustomScripts() {
-    upgradeFloatingSidebar();
-    upgradeFooterSocial();
-    replaceCalendarWithModernCards();
-    upgradeFooterAddress();
-    setupMapNavigation();
-    upgradeOitSection(); 
-    hideBannerOnSubpages();
-}
-
-document.addEventListener("DOMContentLoaded", function() {
-    initAllCustomScripts();
-    setTimeout(initAllCustomScripts, 1000);
-    setTimeout(initAllCustomScripts, 3000);
-});
-
-window.addEventListener("load", function() {
-    initAllCustomScripts();
-});
 
 // =========================================================
 // จัดระเบียบที่อยู่และข้อมูลติดต่อใน Footer
@@ -658,6 +576,19 @@ function upgradeFooterAddress() {
         
         addressTitle.style.margin = "0";
     }
+}
+
+// =========================================================
+// ตัวสั่งรันฟังก์ชันทั้งหมด
+// =========================================================
+function initAllCustomScripts() {
+    upgradeFloatingSidebar();
+    upgradeFooterSocial();
+    replaceCalendarWithModernCards();
+    upgradeFooterAddress();
+    setupMapNavigation();
+    upgradeOitSection(); 
+    hideBannerOnSubpages();
 }
 
 document.addEventListener("DOMContentLoaded", function() {
