@@ -15,7 +15,7 @@ function replaceCalendarWithModernCards() {
 
     var titleText = calWrapper.querySelector('.title');
     if (titleText) {
-        titleText.innerHTML = '<i class="fab fa-facebook-square" style="color:#1877F2; font-size: 1.2em; vertical-align: middle;"></i> ข่าวสารจากเพจเขตคลองเตย (ดูทั้งหมด)';
+        titleText.innerHTML = '<i class="fab fa-facebook-square" style="color:#1877F2; font-size: 1.2em; vertical-align: middle;"></i> ข่าวสารจากสำนักงานเขตคลองเตย';
         titleText.href = 'javascript:void(0);'; // เปลี่ยนไม่ให้เด้งไปหน้าอื่น
         titleText.removeAttribute('target');
         titleText.style.cursor = 'pointer';
