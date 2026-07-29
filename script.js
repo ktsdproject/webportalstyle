@@ -359,8 +359,12 @@ function renderCards(posts) {
     }
 
     var html = '';
-    // ในหน้าหลัก วาดข้อมูลมาทั้งหมด (ซึ่ง CSS จะตัดแสดงเฉพาะ 6 ใบแรกบนมือถือตามเดิม)
-    posts.forEach(function(post) {
+    
+    // ตัดข้อมูลมาวาดแค่ 12 โพสต์แรกสำหรับหน้า Index (ป้องกันเว็บอืด)
+    // สำหรับหน้าจอมือถือ CSS จะซ่อนการ์ดใบที่ 7-12 ให้อัตโนมัติ (เหลือ 6 ใบ)
+    var indexPosts = posts.slice(0, 12);
+    
+    indexPosts.forEach(function(post) {
         var cardData = preparePostCardData(post);
         html += generateFbCardHtml(post, cardData);
     });
