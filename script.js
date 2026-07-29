@@ -1,10 +1,13 @@
 // =========================================================
-// ดึงข่าวสารจาก Facebook ลงมาเป็นการ์ด
+// ดึงข่าวสารจาก Facebook ลงมาเป็นการ์ด + ระบบ Fullscreen Modal
 // =========================================================
 
 window.fbModalImages = [];
 window.fbModalCurrentIndex = 0;
 window.fbPostData = {};
+window.fbAllPosts = []; // เก็บข้อมูลข่าวทั้งหมด
+window.fbFeedCurrentPage = 1; // หน้าปัจจุบันของ Fullscreen Modal
+window.fbFeedPageSize = 10; // จำนวนข่าวต่อหน้า
 
 function replaceCalendarWithModernCards() {
     var calWrapper = document.getElementById('calendar-wrapper');
@@ -12,9 +15,14 @@ function replaceCalendarWithModernCards() {
 
     var titleText = calWrapper.querySelector('.title');
     if (titleText) {
-        titleText.innerHTML = '<i class="fab fa-facebook-square" style="color:#1877F2; font-size: 1.2em; vertical-align: middle;"></i> ข่าวสารจากเพจเขตคลองเตย';
-        titleText.href = 'https://www.facebook.com/khlongtoei599';
-        titleText.target = '_blank';
+        titleText.innerHTML = '<i class="fab fa-facebook-square" style="color:#1877F2; font-size: 1.2em; vertical-align: middle;"></i> ข่าวสารจากเพจเขตคลองเตย (ดูทั้งหมด)';
+        titleText.href = 'javascript:void(0);'; // เปลี่ยนไม่ให้เด้งไปหน้าอื่น
+        titleText.removeAttribute('target');
+        titleText.style.cursor = 'pointer';
+        titleText.onclick = function(e) {
+            e.preventDefault();
+            openFbFeedModal();
+        };
     }
 
     var descElements = calWrapper.querySelectorAll('.desc, .group-gotoall');
@@ -42,6 +50,9 @@ function replaceCalendarWithModernCards() {
                 return response.json();
             })
             .then(data => {
+                // จัดเรียงข้อมูลล่าสุดไปเก่าสุด
+                data.sort((a, b) => new Date(b.date) - new Date(a.date));
+                window.fbAllPosts = data; // เก็บข้อมูลทั้งหมดไว้ใน Global
                 renderCards(data);
             })
             .catch(error => {
@@ -54,6 +65,179 @@ function replaceCalendarWithModernCards() {
     }
 }
 
+// ---------------------------------------------------------
+// สร้าง Fullscreen Modal สำหรับดูข่าวทั้งหมด (10 ข่าว/หน้า)
+// ---------------------------------------------------------
+function createFbFeedModal() {
+    if (document.getElementById('fb-feed-modal')) return;
+
+    var feedModalHtml = `
+        <div id="fb-feed-modal" class="fb-feed-overlay" onclick="closeFbFeedModal(event)">
+            <div class="fb-feed-box" onclick="event.stopPropagation()">
+                <div class="fb-feed-header">
+                    <div class="fb-feed-title">
+                        <i class="fab fa-facebook-square" style="color:#1877F2;"></i> ข่าวสารทั้งหมดจากสำนักงานเขตคลองเตย
+                    </div>
+                    <div>
+                        <a href="https://www.facebook.com/khlongtoei599" target="_blank" class="fb-feed-pagelink" title="เปิดเพจบน Facebook"><i class="fas fa-external-link-alt"></i></a>
+                        <button class="fb-feed-close" onclick="closeFbFeedModal(event)"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
+                <div class="fb-feed-body" id="fb-feed-body-container">
+                    <!-- โหลดรายการข่าว 10 ข่าว/หน้า ตรงนี้ -->
+                </div>
+                <div class="fb-feed-footer">
+                    <button id="fb-feed-prev-btn" class="fb-page-btn" onclick="changeFbFeedPage(-1)"><i class="fas fa-chevron-left"></i> หน้าก่อนหน้า</button>
+                    <span id="fb-feed-page-info" class="fb-page-info">หน้า 1 / 1</span>
+                    <button id="fb-feed-next-btn" class="fb-page-btn" onclick="changeFbFeedPage(1)">หน้าถัดไป <i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', feedModalHtml);
+}
+
+window.openFbFeedModal = function() {
+    createFbFeedModal();
+    window.fbFeedCurrentPage = 1;
+    renderFbFeedPage();
+    document.getElementById('fb-feed-modal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+};
+
+window.closeFbFeedModal = function(e) {
+    if(e) e.preventDefault();
+    document.getElementById('fb-feed-modal').classList.remove('active');
+    document.body.style.overflow = '';
+};
+
+window.changeFbFeedPage = function(direction) {
+    var totalPages = Math.ceil(window.fbAllPosts.length / window.fbFeedPageSize);
+    var targetPage = window.fbFeedCurrentPage + direction;
+
+    if (targetPage >= 1 && targetPage <= totalPages) {
+        window.fbFeedCurrentPage = targetPage;
+        renderFbFeedPage();
+        // เลื่อนกลับไปบนสุดของ Modal Body เมื่อเปลี่ยนหน้า
+        var bodyContainer = document.getElementById('fb-feed-body-container');
+        if (bodyContainer) bodyContainer.scrollTop = 0;
+    }
+};
+
+function renderFbFeedPage() {
+    var container = document.getElementById('fb-feed-body-container');
+    if (!container) return;
+
+    var totalPosts = window.fbAllPosts.length;
+    var totalPages = Math.ceil(totalPosts / window.fbFeedPageSize) || 1;
+    var startIndex = (window.fbFeedCurrentPage - 1) * window.fbFeedPageSize;
+    var endIndex = startIndex + window.fbFeedPageSize;
+    var postsToShow = window.fbAllPosts.slice(startIndex, endIndex);
+
+    // อัปเดตปุ่ม Pagination
+    document.getElementById('fb-feed-page-info').textContent = 'หน้า ' + window.fbFeedCurrentPage + ' / ' + totalPages;
+    document.getElementById('fb-feed-prev-btn').disabled = (window.fbFeedCurrentPage === 1);
+    document.getElementById('fb-feed-next-btn').disabled = (window.fbFeedCurrentPage === totalPages);
+
+    if (postsToShow.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding: 40px; color:#888;">ไม่พบข้อมูลข่าวสาร</div>';
+        return;
+    }
+
+    var html = '<div class="fb-grid fb-feed-grid">';
+    postsToShow.forEach(function(post) {
+        var cardData = preparePostCardData(post);
+        html += generateFbCardHtml(post, cardData);
+    });
+    html += '</div>';
+
+    container.innerHTML = html;
+}
+
+// ---------------------------------------------------------
+// ฟังก์ชันเตรียมข้อมูลรูปและวันที่ (ใช้ร่วมกันทั้งหน้าหลักและ Fullscreen)
+// ---------------------------------------------------------
+function preparePostCardData(post) {
+    var formattedDate = post.date; 
+    try {
+        var d = new Date(post.date);
+        if(!isNaN(d.getTime())) {
+            var hh = String(d.getHours()).padStart(2, '0');
+            var mm = String(d.getMinutes()).padStart(2, '0');
+            var dd = String(d.getDate()).padStart(2, '0');
+            var mo = String(d.getMonth() + 1).padStart(2, '0');
+            var yyyy = d.getFullYear();
+            formattedDate = hh + '.' + mm + ' ' + dd + '-' + mo + '-' + yyyy;
+        }
+    } catch(e) {}
+
+    var textSnippet = post.text ? post.text : 'คลิกเพื่อดูรายละเอียดเพิ่มเติม';
+    var encodedText = encodeURIComponent(textSnippet);
+    
+    var imgArray = ['https://via.placeholder.com/600x400/003366/FFFFFF?text=Khlong+Toei+News'];
+    if (post.image) {
+        try {
+            var parsedImg = JSON.parse(post.image);
+            if (Array.isArray(parsedImg) && parsedImg.length > 0) {
+                var uniqueImages = [];
+                var seenBases = new Set();
+                parsedImg.forEach(function(url) {
+                    var baseUrl = url.split('?')[0]; 
+                    if (!seenBases.has(baseUrl)) {
+                        seenBases.add(baseUrl);
+                        uniqueImages.push(url);
+                    }
+                });
+                imgArray = uniqueImages;
+            }
+        } catch (e) {
+            imgArray = [post.image]; 
+        }
+    }
+
+    // เก็บภาพเข้า Store Global สำหรับเปิด Popup รายละเอียดข่าว
+    window.fbPostData[post.id] = imgArray;
+
+    var coverHtml = '';
+    if (imgArray.length === 1) {
+        coverHtml = `<img src="${imgArray[0]}" class="fb-img" alt="cover" style="width: 100%; height: 180px; object-fit: cover; display: block;">`;
+    } else {
+        var moreBadge = imgArray.length > 2 
+            ? `<div style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.75); color: #fff; padding: 3px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; z-index: 2; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">+${imgArray.length - 2}</div>` 
+            : '';
+        
+        coverHtml = `
+            <div style="display: flex; height: 180px; width: 100%; overflow: hidden; position: relative;">
+                <img src="${imgArray[0]}" style="width: 50%; height: 100%; object-fit: cover; border-right: 2px solid #fff;" alt="cover 1">
+                <img src="${imgArray[1]}" style="width: 50%; height: 100%; object-fit: cover;" alt="cover 2">
+                ${moreBadge}
+            </div>
+        `;
+    }
+
+    return {
+        formattedDate: formattedDate,
+        textSnippet: textSnippet,
+        encodedText: encodedText,
+        coverHtml: coverHtml
+    };
+}
+
+function generateFbCardHtml(post, cardData) {
+    return `
+        <div class="fb-card" onclick="openFbModal('${post.id}', '${cardData.encodedText}', '${post.link}', '${cardData.formattedDate}')">
+            ${cardData.coverHtml}
+            <div class="fb-content">
+                <div class="fb-date"><i class="far fa-clock"></i> ${cardData.formattedDate}</div>
+                <div class="fb-text">${cardData.textSnippet}</div>
+            </div>
+        </div>
+    `;
+}
+
+// ---------------------------------------------------------
+// ฟังก์ชันสร้าง Popup รายละเอียดข่าวเดิม (ปรับปรุง Overflow เวลาปิด)
+// ---------------------------------------------------------
 function createFbModal() {
     if (document.getElementById('fb-custom-modal')) return;
     
@@ -94,9 +278,6 @@ function createFbModal() {
     document.getElementById('fb-next-btn').onmouseout = function() { this.style.background = 'rgba(255,255,255,0.7)'; };
 }
 
-// ---------------------------------------------------------
-// ฟังก์ชันเลื่อนรูปภาพ
-// ---------------------------------------------------------
 window.updateFbModalImage = function() {
     const imgEl = document.getElementById('fb-modal-img');
     const counterEl = document.getElementById('fb-img-counter');
@@ -138,11 +319,7 @@ window.nextFbImage = function(e) {
     }
 };
 
-// ---------------------------------------------------------
-// ฟังก์ชันเปิด/ปิด Popup
-// ---------------------------------------------------------
 window.openFbModal = function(postId, encodedText, link, date) {
-    // ดึง Array รูปภาพจากหน่วยความจำด้วย postId
     window.fbModalImages = window.fbPostData[postId] || ['https://via.placeholder.com/600x400/003366/FFFFFF?text=No+Image'];
     window.fbModalCurrentIndex = 0;
     
@@ -159,45 +336,37 @@ window.openFbModal = function(postId, encodedText, link, date) {
 window.closeFbModal = function(e) {
     if(e) e.preventDefault();
     document.getElementById('fb-custom-modal').classList.remove('active');
-    document.body.style.overflow = '';
+    // เช็คว่าถ้า Fullscreen Feed Modal ยังเปิดอยู่ ไม่ต้องปลดล็อก scroll bar ของ body
+    var feedModal = document.getElementById('fb-feed-modal');
+    if (!feedModal || !feedModal.classList.contains('active')) {
+        document.body.style.overflow = '';
+    }
 };
 
 // =========================================================
-// วาดการ์ด Facebook ลงในหน้าเว็บ
+// วาดการ์ด Facebook ลงในหน้าเว็บหลัก
 // =========================================================
 function renderCards(posts) {
     var container = document.getElementById('fb-card-container');
     if (!container) return;
 
     createFbModal();
+    createFbFeedModal();
 
     if (!posts || posts.length === 0) {
         container.innerHTML = '<div style="text-align: center; width: 100%; padding: 40px; color: #888;">ไม่พบข้อมูลข่าวสารล่าสุด</div>';
         return;
     }
 
-    posts.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-    window.fbPostData = {};
-
     var html = '';
+    // ในหน้าหลัก วาดข้อมูลมาทั้งหมด (ซึ่ง CSS จะตัดแสดงเฉพาะ 6 ใบแรกบนมือถือตามเดิม)
     posts.forEach(function(post) {
-        var formattedDate = post.date; 
-        try {
-            var d = new Date(post.date);
-            if(!isNaN(d.getTime())) {
-                var hh = String(d.getHours()).padStart(2, '0');
-                var mm = String(d.getMinutes()).padStart(2, '0');
-                var dd = String(d.getDate()).padStart(2, '0');
-                var mo = String(d.getMonth() + 1).padStart(2, '0');
-                var yyyy = d.getFullYear();
-                
-                formattedDate = hh + '.' + mm + ' ' + dd + '-' + mo + '-' + yyyy;
-            }
-        } catch(e) {}
-
-        var textSnippet = post.text ? post.text : 'คลิกเพื่อดูรายละเอียดเพิ่มเติม';
-        var encodedText = encodeURIComponent(textSnippet);
+        var cardData = preparePostCardData(post);
+        html += generateFbCardHtml(post, cardData);
+    });
+    
+    container.innerHTML = html;
+}
         
         // ----------------------------------------------------
         // แกะรูปภาพ และ กรอง URL ที่ซ้ำกันจาก Facebook
