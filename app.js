@@ -60,7 +60,7 @@ function renderNavbar() {
     return `
         <nav class="spa-navbar">
             <div class="nav-brand">
-                <i class="fas fa-building"></i> ระบบบริหารจัดการ เขตคลองเตย
+                <i class="fas fa-building"></i> สำนักงานเขตคลองเตย
             </div>
             <div class="nav-links">
                 <a href="#index"><i class="fas fa-home"></i> หน้าหลัก</a>
