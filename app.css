@@ -229,6 +229,60 @@
     border: none;
     cursor: pointer;
 }
+
+/* =========================================================
+   ระบบ Banner Slide (Fade & Zoom Effect)
+   ========================================================= */
+.banner-container {
+    position: relative;
+    width: 100%;
+    height: 350px; /* ปรับความสูงแบนเนอร์ได้ตามต้องการ */
+    margin: 0 auto 30px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0, 116, 75, 0.2);
+    background: #eef2f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ตั้งค่าแบนเนอร์แต่ละรูปที่ซ้อนกันอยู่ */
+.banner-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    visibility: hidden;
+    /* เอฟเฟกต์เปลี่ยนภาพ: จาง (Opacity) + ซูมเข้าเบาๆ (Transform) */
+    transition: opacity 1.2s ease-in-out, transform 1.2s ease-in-out; 
+    transform: scale(1.05); /* เริ่มต้นให้ซูมเข้า 5% */
+}
+
+/* ภาพที่กำลังแสดงผล (Active) */
+.banner-slide.active {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1); /* หดกลับมาขนาดปกติ 100% ทำให้ดูเหมือนค่อยๆ ถอยออกมา */
+    z-index: 1;
+}
+
+.banner-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* ทำให้รูปเต็มกรอบโดยสัดส่วนไม่เพี้ยน */
+    object-position: center;
+}
+
+/* ข้อความตอนรอโหลดภาพ */
+.banner-loading {
+    color: #00744B;
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
 .btn-svc:hover { opacity: .85; }
 .btn-svc.blue { background: #1a6ea8; }
 .btn-svc.orange { background: #d35400; }
