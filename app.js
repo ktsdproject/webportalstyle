@@ -70,25 +70,6 @@ function renderNavbar() {
     `;
 }
 
-function PageHome() {
-    return `
-        <div class="page-header">
-            <h1>แดชบอร์ดส่วนกลาง</h1>
-            <p>ยินดีต้อนรับเข้าสู่ระบบจัดการข้อมูล สำนักงานเขตคลองเตย</p>
-        </div>
-        <div class="grid-cards">
-            <div class="stat-card">
-                <h3>จำนวนข่าวสาร</h3>
-                <h2>${mockData.news.length} โพสต์</h2>
-            </div>
-            <div class="stat-card">
-                <h3>สถานะระบบ</h3>
-                <h2 style="color: #059669;">🟢 ปกติ</h2>
-            </div>
-        </div>
-    `;
-}
-
 function PageNews() {
     let newsHtml = `
         <div class="page-header">
