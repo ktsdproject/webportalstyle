@@ -16,7 +16,7 @@
 
 /* แถบ Navbar */
 .spa-navbar {
-    background: #003366;
+    background: #00744B; /* <--- สีธีมใหม่ */
     color: white;
     padding: 15px 30px;
     display: flex;
@@ -91,7 +91,7 @@
     padding: 20px;
     border-radius: 10px;
     margin-bottom: 15px;
-    border-left: 5px solid #059669;
+    border-left: 5px solid #00744B; /* <--- สีธีมใหม่ */
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
@@ -121,12 +121,13 @@
 }
 
 .btn-primary {
-    background: #1877f2;
+    background: #00744B; /* <--- สีธีมใหม่ */
     color: white;
 }
 .btn-primary:hover {
-    background: #166fe5;
+    background: #005a3a; /* <--- เข้มขึ้นนิดนึงเวลาเมาส์ชี้ */
 }
+
 /* =========================================================
    หน้า Dashboard สไตล์ e-Service
    ========================================================= */
@@ -139,7 +140,7 @@
 
 /* ส่วนต้อนรับ (Hero Section) */
 .profile-hero {
-    background: linear-gradient(135deg, #1B2558 0%, #2a3a8c 100%);
+    background: linear-gradient(135deg, #005a3a 0%, #00744B 100%); /* <--- ไล่เฉดสีเขียว */
     border-radius: 12px;
     padding: 24px 28px;
     color: #fff;
@@ -147,7 +148,7 @@
     display: flex;
     align-items: center;
     gap: 20px;
-    box-shadow: 0 4px 15px rgba(27, 37, 88, 0.2);
+    box-shadow: 0 4px 15px rgba(0, 116, 75, 0.3); /* <--- เงาสีเขียวจางๆ */
 }
 .profile-hero .avatar {
     width: 64px; height: 64px;
@@ -157,14 +158,14 @@
     font-size: 30px; flex-shrink: 0;
 }
 .profile-hero h2 { margin: 0 0 5px; font-size: 22px; font-weight: 600; }
-.profile-hero p { margin: 0; font-size: 14px; color: rgba(255,255,255,.8); }
+.profile-hero p { margin: 0; font-size: 14px; color: rgba(255,255,255,.9); }
 
 /* หัวข้อแต่ละหมวดหมู่ */
 .section-header {
     font-size: 18px;
     font-weight: 600;
-    color: #1B2558;
-    border-left: 4px solid #1B2558;
+    color: #00744B; /* <--- สีธีมใหม่ */
+    border-left: 4px solid #00744B; /* <--- สีธีมใหม่ */
     padding-left: 12px;
     margin: 20px 0 15px;
 }
@@ -204,6 +205,7 @@
 .svc-icon.orange { background: #d35400; }
 .svc-icon.green { background: #2d7a4f; }
 .svc-icon.red { background: #c0392b; }
+.svc-icon.theme { background: #00744B; } /* <--- เผื่อใช้ไอคอนสีธีมหลัก */
 
 .service-card h4 {
     font-size: 15px;
@@ -232,3 +234,4 @@
 .btn-svc.orange { background: #d35400; }
 .btn-svc.green { background: #2d7a4f; }
 .btn-svc.red { background: #c0392b; }
+.btn-svc.theme { background: #00744B; } /* <--- เผื่อใช้ปุ่มสีธีมหลัก */
